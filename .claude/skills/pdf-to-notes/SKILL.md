@@ -37,7 +37,7 @@ description: 把主人拍的讲义/教科书 PDF 做成 Ippo 网站内容（マ�
 - 用 `grep -n` 找到目标科目块里的 `NOTES`、`TOPICS`、`FOLDERS`、节点区、`TOPIC_INFO`，**照该科已有写法**插入。
 - 暗記卡片：用 Python 读出 `window.IppoDrill=` 那一行 → `json.loads` → 加 deck / cards（id 不能重复，格式 `前缀-随机串`）→ `json.dumps(ensure_ascii=False, separators=(',',':'))` 写回。
 - 运行 `node tools/check.mjs`，必须全部通过。
-- 用 Playwright 打开网页，切到该科目、点开新 topic 截图，确认图和笔记都显示出来了。
+- 用 `node tools/shot.mjs <截图目录> <该科目tab>` 截图，再打开新 topic 确认图和笔记都显示出来了；新内容的排版也要过 `design-reviewer`（见「品质标准」）。
 
 ## 5. 交付
 
