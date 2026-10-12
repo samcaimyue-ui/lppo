@@ -1267,10 +1267,11 @@ dialog.hk-tsheet { overflow-y: auto; }
 .hero::after { content: ""; position: absolute; z-index: 0; right: min(22vw, 220px); top: 18px; width: min(14vw, 130px); height: min(24vw, 230px); background: var(--bh-yellow); border-right: 8px solid var(--rule); }
 .hero-sm::before { width: min(22vw, 200px); }
 .hero-sm::after { right: min(17vw, 150px); width: min(10vw, 90px); height: min(17vw, 160px); }
+/* 窄屏：装饰缩到 56px 高，放在眉标那一行的右端（底边对齐眉标第一行），不再给 hero 额外加顶部留白 */
 @media (max-width: 860px) {
-  .hero, .hero-sm { padding-top: 104px; }
-  .hero::before, .hero-sm::before { width: 72px; top: 20px; right: 0; }
-  .hero::after, .hero-sm::after { width: 26px; height: 72px; right: 88px; top: 20px; border-right-width: 5px; }
+  .hero::before, .hero-sm::before { width: 56px; top: 16px; right: 0; }
+  .hero::after, .hero-sm::after { width: 20px; height: 56px; right: 68px; top: 16px; border-right-width: 4px; }
+  .hero > .eyebrow { padding-right: 100px; }
 }
 /* 段落标题：前面一个黑箭头，后面一条横杠（参考图 → PROJECT-） */
 .section-head h2::before { content: "→ "; color: var(--bh-red); }
@@ -1571,6 +1572,31 @@ dialog { border-radius: 0; border: var(--rule-w) solid var(--rule); box-shadow: 
 #dlgLevel .ip-tile-body { color: var(--ink); font-weight: 500; }
 #dlgLevel .ip-btn { box-shadow: 4px 4px 0 var(--rule); }
 @media (max-width: 560px) { #dlgLevel .dlg-body { padding-inline: var(--space-8); } }
+
+/* —— 今日大标题：大红圆是主角 + 黄方块 + 黑竖条；1px 细线沿标题基线贯穿全宽 ——
+   坐标 = SVG viewBox 单位 × --hd-u。电脑：构成挂在标题那一行，锚点（--hd-ay）落在标题基线上；
+   细线和出血色块用 border-image 外扩到视口边缘（只画、不占位，不会横向滚动）。手机（≤640px）：换成 56px 高的小构成，放在眉标那一行右端 */
+#todayView .hero { overflow: visible; --hd-fs: clamp(38px, 6.2vw, 58px); --hd-base: calc(.17 * var(--hd-fs)); --hd-u: calc(min(28vw, 296px) / 320); --hd-vh: 260; --hd-ay: 140; }
+#todayView .hero::after { display: none; }
+#todayView .hero > .bh-deco { position: absolute; z-index: 0; right: 0; pointer-events: none; overflow: visible; }
+#todayView .hero > .hd-lg { grid-row: 2 / 3; grid-column: 1 / -1; top: auto; bottom: calc(var(--hd-base) - (var(--hd-vh) - var(--hd-ay)) * var(--hd-u)); width: calc(320 * var(--hd-u)); height: auto; }
+#todayView .hero > .hd-sm { display: none; }
+#todayView .hero .lead { max-width: min(34em, calc(100% - 320 * var(--hd-u) - 32px)); }
+#todayView .hero::before { content: ""; position: absolute; z-index: 0; grid-row: 2 / 3; grid-column: 1 / -1; right: 0; border: 0; border-radius: 0; aspect-ratio: auto; background: none; top: calc(100% - var(--hd-base) + (var(--bl-y) - var(--hd-ay)) * var(--hd-u)); width: calc(var(--bl-w) * var(--hd-u)); height: calc(var(--bl-h) * var(--hd-u)); border-image: var(--bl-img) fill 0 / 0 / 0 100vw 0 0; pointer-events: none; }
+#todayView .hero h1::after { content: ""; position: absolute; z-index: -1; left: 0; right: 0; bottom: var(--hd-base); height: 1px; border-image: linear-gradient(var(--rule), var(--rule)) fill 0 / 0 / 0 100vw; pointer-events: none; }
+/* 锚点 = 黄方块上沿（黑竖条落在这里）；大红圆从基线升起；蓝条从圆后面伸到视口右缘 */
+#todayView .hero { --bl-y: 196; --bl-w: 64; --bl-h: 26; --bl-img: linear-gradient(var(--bh-blue), var(--bh-blue)); }
+@media (max-width: 640px) {
+  #todayView .hero > .hd-lg { display: none; }
+  #todayView .hero > .hd-sm { display: block; top: 16px; height: 56px; }
+  #todayView .hero > .eyebrow { word-break: keep-all; overflow-wrap: anywhere; }
+  #todayView .hero .lead { max-width: none; }
+  #todayView .hero::before { grid-row: auto; grid-column: auto; top: calc(16px + var(--bl-y) * 1px); width: calc(var(--bl-w) * 1px); height: calc(var(--bl-h) * 1px); }
+  #todayView .hero > .hd-sm { width: 100px; }
+  #todayView .hero { --bl-y: 44; --bl-w: 16; --bl-h: 8; }
+  #todayView .hero > .eyebrow { padding-right: 112px; }
+  #todayView .hd-sm .st { stroke-width: 4; }
+}
 /* ==== /BH:today ==== */
 /*
    ·
@@ -1582,9 +1608,20 @@ dialog { border-radius: 0; border: var(--rule-w) solid var(--rule); box-shadow: 
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bh-on-red: #141414; --bh-on-blue: #0a0a0a; } }
 :root[data-theme="dark"] { --bh-on-red: #141414; --bh-on-blue: #0a0a0a; }
 /* --- 大标题：各页自己的几何构成（SVG 装饰，永远在文字下层） --- */
-#hakushiView .hero::before, #hakushiView .hero::after, #tashokuView .hero::before, #tashokuView .hero::after { display: none; }
-#hakushiView .hero > .bh-deco, #tashokuView .hero > .bh-deco { position: absolute; z-index: 0; right: 0; top: 40px; width: min(22vw, 270px); height: auto; pointer-events: none; overflow: visible; }
-#hakushiView .hero .lead, #tashokuView .hero .lead { max-width: min(38em, calc(100% - min(22vw, 270px) - 32px)); }
+/* 坐标 = SVG viewBox 单位 × --hd-u。电脑：构成挂在标题那一行，锚点（--hd-ay）落在标题基线上；
+   1px 细线沿基线左右贯穿到视口两缘，出血色块伸到视口右缘（border-image 外扩：只画、不占位，不会横向滚动）。
+   手机（≤640px）：换成 56px 高的小构成，放在眉标那一行右端（底边对齐眉标第一行） */
+:is(#hakushiView, #tashokuView) .hero { overflow: visible; --hd-fs: clamp(34px, 5.4vw, 52px); --hd-base: calc(.17 * var(--hd-fs)); --hd-u: calc(min(22vw, 270px) / 300); --hd-vh: 260; }
+:is(#hakushiView, #tashokuView) .hero::after { display: none; }
+:is(#hakushiView, #tashokuView) .hero > .bh-deco { position: absolute; z-index: 0; right: 0; pointer-events: none; overflow: visible; }
+:is(#hakushiView, #tashokuView) .hero > .hd-lg { grid-row: 2 / 3; grid-column: 1 / -1; top: auto; bottom: calc(var(--hd-base) - (var(--hd-vh) - var(--hd-ay)) * var(--hd-u)); width: calc(300 * var(--hd-u)); height: auto; }
+:is(#hakushiView, #tashokuView) .hero > .hd-sm { display: none; }
+:is(#hakushiView, #tashokuView) .hero .lead { max-width: min(38em, calc(100% - 300 * var(--hd-u) - 32px)); }
+:is(#hakushiView, #tashokuView) .hero::before { content: ""; position: absolute; z-index: 0; grid-row: 2 / 3; grid-column: 1 / -1; right: 0; border: 0; border-radius: 0; aspect-ratio: auto; background: none; top: calc(100% - var(--hd-base) + (var(--bl-y) - var(--hd-ay)) * var(--hd-u)); width: calc(var(--bl-w) * var(--hd-u)); height: calc(var(--bl-h) * var(--hd-u)); border-image: var(--bl-img) fill 0 / 0 / 0 100vw 0 0; pointer-events: none; }
+:is(#hakushiView, #tashokuView) .hero h1::after { content: ""; position: absolute; z-index: -1; left: 0; right: 0; bottom: var(--hd-base); height: 1px; border-image: linear-gradient(var(--rule), var(--rule)) fill 0 / 0 / 0 100vw; pointer-events: none; }
+/* 锚点：白紙 = 纸的下沿；多職種 = 横轴。出血色块：白紙 = 黄方块伸到右缘；多職種 = 红条从竖轴伸到右缘 */
+#hakushiView .hero { --hd-ay: 168; --bl-y: 182; --bl-w: 64; --bl-h: 44; --bl-img: linear-gradient(var(--bh-yellow), var(--bh-yellow)); }
+#tashokuView .hero { --hd-ay: 140; --bl-y: 206; --bl-w: 110; --bl-h: 24; --bl-img: linear-gradient(var(--bh-red), var(--bh-red)); }
 .bh-deco .r { fill: var(--bh-red); }
 .bh-deco .y { fill: var(--bh-yellow); }
 .bh-deco .b { fill: var(--bh-blue); }
@@ -1592,9 +1629,22 @@ dialog { border-radius: 0; border: var(--rule-w) solid var(--rule); box-shadow: 
 .bh-deco .ln { stroke: var(--rule); stroke-width: 4; fill: none; }
 .bh-deco .st { stroke: var(--rule); stroke-width: 8; fill: none; stroke-linejoin: miter; stroke-linecap: square; }
 .bh-deco .nd { fill: var(--surface); stroke: var(--rule); stroke-width: 6; }
-@media (max-width: 860px) {
-  #hakushiView .hero > .bh-deco, #tashokuView .hero > .bh-deco { top: 18px; width: 96px; }
-  #hakushiView .hero .lead, #tashokuView .hero .lead { max-width: none; }
+@media (max-width: 640px) {
+  :is(#hakushiView, #tashokuView) .hero > .hd-lg { display: none; }
+  :is(#hakushiView, #tashokuView) .hero > .hd-sm { display: block; top: 16px; height: 56px; }
+  :is(#hakushiView, #tashokuView) .hero > .eyebrow { word-break: keep-all; overflow-wrap: anywhere; }
+  :is(#hakushiView, #tashokuView) .hero .lead { max-width: none; }
+  :is(#hakushiView, #tashokuView) .hero::before { grid-row: auto; grid-column: auto; top: calc(16px + var(--bl-y) * 1px); width: calc(var(--bl-w) * 1px); height: calc(var(--bl-h) * 1px); }
+  #hakushiView .hero > .hd-sm { width: 72px; }
+  #tashokuView .hero > .hd-sm { width: 68px; }
+  #hakushiView .hero { --bl-y: 44; --bl-w: 14; --bl-h: 12; }
+  #tashokuView .hero::before { display: none; }
+  #hakushiView .hero > .eyebrow { padding-right: 84px; }
+  #tashokuView .hero > .eyebrow { padding-right: 80px; }
+  :is(#hakushiView, #tashokuView) .hd-sm .sheet { stroke-width: 3; }
+  :is(#hakushiView, #tashokuView) .hd-sm .ln { stroke-width: 2; }
+  :is(#hakushiView, #tashokuView) .hd-sm .st { stroke-width: 3; }
+  :is(#hakushiView, #tashokuView) .hd-sm .nd { stroke-width: 2.5; }
 }
 
 /* --- 段落标题右侧：细横线阵列 ≡（参考图） --- */
@@ -2147,6 +2197,46 @@ dialog.hk-tsheet .hk-cover { background: var(--surface); -webkit-backdrop-filter
 #jisshuView .bs-col + .bs-col { background: var(--surface-raised); box-shadow: inset 0 8px 0 var(--bh-red); }
 #jisshuView .jx-bone { fill: var(--seiji-soft); stroke: var(--bh-blue); }
 #jisshuView .jx-hurt { stroke: var(--bh-red); }
+
+/* ---------- 大标题构成：ドリル = 三张错位叠放的卡；国試 = 17 个方格（17 届）；実習 = 两级台阶（第 1 周、第 2 周） ----------
+   坐标 = SVG viewBox 单位 × --hd-u。电脑：构成挂在标题那一行，锚点（--hd-ay）落在标题基线上；
+   1px 细线沿基线左右贯穿到视口两缘，出血色块伸到视口右缘（border-image 外扩：只画、不占位，不会横向滚动）。
+   手机（≤640px）：换成 ≤56px 高的小构成，放在眉标那一行右端（底边对齐眉标第一行） */
+:is(#drillView, #kokushiView, #jisshuView) .hero { overflow: visible; --hd-fs: clamp(34px, 5.4vw, 52px); --hd-base: calc(.17 * var(--hd-fs)); --hd-u: calc(min(24vw, 280px) / 300); --hd-vh: 260; }
+:is(#drillView, #kokushiView, #jisshuView) .hero::after { display: none; }
+:is(#drillView, #kokushiView, #jisshuView) .hero > .bh-deco { position: absolute; z-index: 0; right: 0; pointer-events: none; overflow: visible; }
+:is(#drillView, #kokushiView, #jisshuView) .hero > .hd-lg { grid-row: 2 / 3; grid-column: 1 / -1; top: auto; bottom: calc(var(--hd-base) - (var(--hd-vh) - var(--hd-ay)) * var(--hd-u)); width: calc(300 * var(--hd-u)); height: auto; }
+:is(#drillView, #kokushiView, #jisshuView) .hero > .hd-sm { display: none; }
+:is(#drillView, #kokushiView, #jisshuView) .hero .lead { max-width: min(38em, calc(100% - 300 * var(--hd-u) - 32px)); }
+:is(#drillView, #kokushiView, #jisshuView) .hero::before { content: ""; position: absolute; z-index: 0; grid-row: 2 / 3; grid-column: 1 / -1; right: 0; border: 0; border-radius: 0; aspect-ratio: auto; background: none; top: calc(100% - var(--hd-base) + (var(--bl-y) - var(--hd-ay)) * var(--hd-u)); width: calc(var(--bl-w) * var(--hd-u)); height: calc(var(--bl-h) * var(--hd-u)); border-image: var(--bl-img) fill 0 / 0 / 0 100vw 0 0; pointer-events: none; }
+:is(#drillView, #kokushiView, #jisshuView) .hero h1::after { content: ""; position: absolute; z-index: -1; left: 0; right: 0; bottom: var(--hd-base); height: 1px; border-image: linear-gradient(var(--rule), var(--rule)) fill 0 / 0 / 0 100vw; pointer-events: none; }
+/* 锚点：ドリル = 前面那张卡的分隔线；国試 = L 形黑线的横边；実習 = 第 1 级台阶的台面。出血色块：ドリル 黄条，国試 红条，実習 = 第 2 级台阶一直伸到右缘 */
+#drillView .hero { --hd-ay: 165; --bl-y: 186; --bl-w: 86; --bl-h: 26; --bl-img: linear-gradient(var(--bh-yellow), var(--bh-yellow)); }
+#kokushiView .hero { --hd-ay: 182; --bl-y: 204; --bl-w: 120; --bl-h: 26; --bl-img: linear-gradient(var(--bh-red), var(--bh-red)); }
+#jisshuView .hero { --hd-ay: 150; --bl-y: 62; --bl-w: 40; --bl-h: 198; --bl-img: linear-gradient(var(--rule) 0 calc(8 * var(--hd-u)), var(--bh-blue) 0); }
+:is(#drillView, #kokushiView, #jisshuView) .bh-deco .cd { stroke: var(--rule); stroke-width: 6; }
+:is(#drillView, #kokushiView, #jisshuView) .bh-deco .hl { fill: none; stroke: var(--rule); stroke-width: 4; }
+:is(#drillView, #kokushiView, #jisshuView) .bh-deco .sq { stroke: var(--rule); stroke-width: 4; }
+:is(#drillView, #kokushiView, #jisshuView) .bh-deco .p { fill: var(--surface-raised); }
+@media (max-width: 640px) {
+  :is(#drillView, #kokushiView, #jisshuView) .hero > .hd-lg { display: none; }
+  :is(#drillView, #kokushiView, #jisshuView) .hero > .hd-sm { display: block; top: 16px; height: 56px; }
+  :is(#drillView, #kokushiView, #jisshuView) .hero > .eyebrow { word-break: keep-all; overflow-wrap: anywhere; }
+  :is(#drillView, #kokushiView, #jisshuView) .hero .lead { max-width: none; }
+  :is(#drillView, #kokushiView, #jisshuView) .hero::before { grid-row: auto; grid-column: auto; top: calc(16px + var(--bl-y) * 1px); width: calc(var(--bl-w) * 1px); height: calc(var(--bl-h) * 1px); }
+  #drillView .hero > .hd-sm { width: 96px; }
+  #kokushiView .hero > .hd-sm { width: 92px; height: 44px; top: 28px; }
+  #jisshuView .hero > .hd-sm { width: 76px; }
+  :is(#drillView, #kokushiView) .hero::before { display: none; }
+  #jisshuView .hero { --bl-y: 14.5; --bl-w: 10; --bl-h: 41.5; --bl-img: linear-gradient(var(--rule) 0 3px, var(--bh-blue) 0); }
+  #drillView .hero > .eyebrow { padding-right: 108px; }
+  #kokushiView .hero > .eyebrow { padding-right: 104px; }
+  #jisshuView .hero > .eyebrow { padding-right: 88px; }
+  :is(#drillView, #kokushiView, #jisshuView) .hd-sm .cd { stroke-width: 3; }
+  :is(#drillView, #kokushiView, #jisshuView) .hd-sm :is(.hl, .sq) { stroke-width: 2; }
+  :is(#drillView, #kokushiView, #jisshuView) .hd-sm .st { stroke-width: 3; }
+  :is(#drillView, #kokushiView, #jisshuView) .hd-sm .nd { stroke-width: 2.5; }
+}
 /* ==== /BH:drill-kokushi-jisshu ==== */
 /*
    ·
@@ -2269,6 +2359,7 @@ dialog.hk-tsheet .hk-gcard[aria-pressed="true"] { box-shadow: inset 0 0 0 3px va
 <main class="wrap">
 <div id="todayView">
   <section class="hero" aria-labelledby="heroTitle">
+    <svg class="bh-deco hd-lg" viewBox="0 0 320 260" aria-hidden="true" focusable="false"><rect class="y" x="24" y="140" width="96" height="96"/><path class="st" d="M44 30V136"/><circle class="r" cx="206" cy="124" r="110"/></svg><svg class="bh-deco hd-sm" viewBox="0 0 100 56" aria-hidden="true" focusable="false"><rect class="y" x="16" y="30" width="26" height="26"/><path class="st" d="M24 0V30"/><circle class="r" cx="72" cy="28" r="28"/></svg>
     <p class="eyebrow" id="heroDate">今日</p>
     <h1 id="heroTitle">今天，也往前一步。</h1>
     <p class="lead" id="heroLead">先开一段 25 分的专注。完成后可以抽一签。</p>
@@ -2619,7 +2710,8 @@ dialog.hk-tsheet .hk-gcard[aria-pressed="true"] { box-shadow: inset 0 0 0 3px va
 </div>
 <div id="tashokuView" hidden>
   <section class="hero hero-sm" aria-labelledby="tsTitle">
-    <svg class="bh-deco" viewBox="0 0 300 260" aria-hidden="true" focusable="false"><rect class="y" x="0" y="0" width="118" height="104"/><path class="st" d="M0 140H300M190 0V260"/><circle class="b" cx="190" cy="140" r="60"/><circle class="nd" cx="52" cy="140" r="14"/><circle class="nd" cx="274" cy="140" r="14"/><circle class="nd" cx="190" cy="26" r="14"/><circle class="nd" cx="190" cy="236" r="14"/></svg>
+    <svg class="bh-deco hd-lg" viewBox="0 0 300 260" aria-hidden="true" focusable="false"><rect class="y" x="0" y="0" width="118" height="104"/><path class="st" d="M0 140H300M190 0V260"/><circle class="b" cx="190" cy="140" r="60"/><circle class="nd" cx="52" cy="140" r="14"/><circle class="nd" cx="274" cy="140" r="14"/><circle class="nd" cx="190" cy="26" r="14"/><circle class="nd" cx="190" cy="236" r="14"/></svg>
+    <svg class="bh-deco hd-sm" viewBox="0 0 68 56" aria-hidden="true" focusable="false"><rect class="y" x="0" y="0" width="24" height="20"/><path class="st" d="M0 30H68M44 0V56"/><circle class="b" cx="44" cy="30" r="13"/><circle class="nd" cx="10" cy="30" r="4.5"/><circle class="nd" cx="44" cy="5.5" r="4.5"/></svg>
     <p class="eyebrow">多職種連携 · 国試範囲</p>
     <h1 id="tsTitle">团队医疗，<br>患者在正中间。</h1>
     <p class="lead">国试常考的几块：三种团队模式、各职种的根据法、业务独占和名称独占、PT 法条文、会议和地域包括ケア。先读懂一节，再按「这一块去ドリル」拆开记。</p>
@@ -2709,7 +2801,8 @@ dialog.hk-tsheet .hk-gcard[aria-pressed="true"] { box-shadow: inset 0 0 0 3px va
 
 <div id="hakushiView" hidden>
   <section class="hero hero-sm" aria-labelledby="hkHeroTitle">
-    <svg class="bh-deco" viewBox="0 0 300 260" aria-hidden="true" focusable="false"><circle class="r" cx="86" cy="176" r="74"/><rect class="y" x="236" y="182" width="44" height="44"/><rect class="sheet" x="78" y="22" width="196" height="146"/><path class="ln" d="M104 62H246M104 82H246M104 102H246M104 122H200"/><path class="st" d="M8 246H170V214H292"/></svg>
+    <svg class="bh-deco hd-lg" viewBox="0 0 300 260" aria-hidden="true" focusable="false"><circle class="r" cx="86" cy="176" r="74"/><rect class="y" x="236" y="183" width="44" height="42"/><rect class="sheet" x="78" y="22" width="196" height="146"/><path class="ln" d="M104 62H246M104 82H246M104 102H246M104 122H200"/><path class="st" d="M8 246H170V214H292"/></svg>
+    <svg class="bh-deco hd-sm" viewBox="0 0 72 56" aria-hidden="true" focusable="false"><circle class="r" cx="20" cy="36" r="20"/><rect class="y" x="58" y="44" width="14" height="12"/><rect class="sheet" x="18" y="1.5" width="52" height="38"/><path class="ln" d="M26 12H62M26 20H62M26 28H50"/></svg>
     <p class="eyebrow">白紙 · 凭记忆画出来</p>
     <h1 id="hkHeroTitle">合上书，<br>在白纸上画出来。</h1>
     <p class="lead">看一小段就合上。凭记忆写出最重要的三件事，画成骨架，再翻开书，用朱笔补上漏掉的。隔 1、3、7 天再凭记忆画一次，每一次都会比上次多想起一点。</p>
@@ -2811,6 +2904,7 @@ dialog.hk-tsheet .hk-gcard[aria-pressed="true"] { box-shadow: inset 0 0 0 3px va
 
 <div id="drillView" hidden>
   <section class="hero hero-sm" aria-labelledby="drHeroTitle">
+    <svg class="bh-deco hd-lg" viewBox="0 0 300 260" aria-hidden="true" focusable="false"><rect class="y cd" x="120" y="14" width="166" height="110"/><rect class="b cd" x="72" y="62" width="166" height="110"/><rect class="r cd" x="24" y="110" width="166" height="110"/><path class="hl" d="M24 165H190"/><circle class="nd" cx="54" cy="138" r="9"/><path class="ln" d="M210 236H292M210 250H292"/></svg><svg class="bh-deco hd-sm" viewBox="0 0 96 56" aria-hidden="true" focusable="false"><rect class="y cd" x="38.5" y="1.5" width="56" height="34"/><rect class="b cd" x="20" y="11" width="56" height="34"/><rect class="r cd" x="1.5" y="20.5" width="56" height="34"/><path class="hl" d="M1.5 38H57.5"/></svg>
     <p class="eyebrow">記憶ドリル</p>
     <h1 id="drHeroTitle">拆到最小，<br>一个一个记住。</h1>
     <p class="lead">每张卡只问一件事。先在心里说出答案，再翻开对。答对的卡隔 1、3、7、14、30、60 天再回来；隔开几天还答得出，才算记牢。</p>
@@ -2925,6 +3019,7 @@ dialog.hk-tsheet .hk-gcard[aria-pressed="true"] { box-shadow: inset 0 0 0 3px va
 </div>
 <div id="kokushiView" hidden>
   <section class="hero hero-sm" aria-labelledby="kkHeroTitle">
+    <svg class="bh-deco hd-lg" viewBox="0 0 300 260" aria-hidden="true" focusable="false"><rect class="b" x="0" y="150" width="124" height="90"/><path class="st" d="M20 0V182H300"/><rect class="sq p" x="44" y="20" width="34" height="34"/><rect class="sq p" x="86" y="20" width="34" height="34"/><rect class="sq p" x="128" y="20" width="34" height="34"/><rect class="sq p" x="170" y="20" width="34" height="34"/><rect class="sq y" x="212" y="20" width="34" height="34"/><rect class="sq p" x="254" y="20" width="34" height="34"/><rect class="sq p" x="44" y="62" width="34" height="34"/><rect class="sq p" x="86" y="62" width="34" height="34"/><rect class="sq p" x="128" y="62" width="34" height="34"/><rect class="sq p" x="170" y="62" width="34" height="34"/><rect class="sq b" x="212" y="62" width="34" height="34"/><rect class="sq p" x="254" y="62" width="34" height="34"/><rect class="sq p" x="44" y="104" width="34" height="34"/><rect class="sq p" x="86" y="104" width="34" height="34"/><rect class="sq p" x="128" y="104" width="34" height="34"/><rect class="sq p" x="170" y="104" width="34" height="34"/><rect class="sq r" x="212" y="104" width="34" height="34"/></svg><svg class="bh-deco hd-sm" viewBox="0 0 92 44" aria-hidden="true" focusable="false"><rect class="sq p" x="1" y="1" width="10" height="10"/><rect class="sq p" x="17" y="1" width="10" height="10"/><rect class="sq p" x="33" y="1" width="10" height="10"/><rect class="sq p" x="49" y="1" width="10" height="10"/><rect class="sq y" x="65" y="1" width="10" height="10"/><rect class="sq p" x="81" y="1" width="10" height="10"/><rect class="sq p" x="1" y="17" width="10" height="10"/><rect class="sq p" x="17" y="17" width="10" height="10"/><rect class="sq p" x="33" y="17" width="10" height="10"/><rect class="sq p" x="49" y="17" width="10" height="10"/><rect class="sq b" x="65" y="17" width="10" height="10"/><rect class="sq p" x="81" y="17" width="10" height="10"/><rect class="sq p" x="1" y="33" width="10" height="10"/><rect class="sq p" x="17" y="33" width="10" height="10"/><rect class="sq p" x="33" y="33" width="10" height="10"/><rect class="sq p" x="49" y="33" width="10" height="10"/><rect class="sq r" x="65" y="33" width="10" height="10"/></svg>
     <p class="eyebrow">国家試験（国家考试）· 第45回〜第61回</p>
     <h1 id="kkHeroTitle">17 届真题，<br>一题一题过。</h1>
     <p class="lead">PT/OT 国家试验 5,100 题：PT専門、OT専門、共通各 1,700 题。图和正答都取自厚生劳动省公开的 PDF；採点除外和复数正解也按官方正答判定。</p>
@@ -2976,6 +3071,7 @@ dialog.hk-tsheet .hk-gcard[aria-pressed="true"] { box-shadow: inset 0 0 0 3px va
 
 <div id="jisshuView" hidden>
   <section class="hero hero-sm" aria-labelledby="jxTitle">
+    <svg class="bh-deco hd-lg" viewBox="0 0 300 260" aria-hidden="true" focusable="false"><rect class="y" x="16" y="150" width="134" height="110"/><rect class="b" x="150" y="66" width="150" height="194"/><path class="st" d="M0 150H150V66H300"/><circle class="nd" cx="83" cy="150" r="13"/><circle class="r" cx="225" cy="32" r="30"/></svg><svg class="bh-deco hd-sm" viewBox="0 0 76 56" aria-hidden="true" focusable="false"><rect class="y" x="4" y="32" width="34" height="24"/><rect class="b" x="38" y="16" width="38" height="40"/><path class="st" d="M6 32H38V16H76"/><circle class="nd" cx="19" cy="32" r="4.5"/><circle class="r" cx="58" cy="7" r="7"/></svg>
     <p class="eyebrow">臨床実習 · 第 1–2 周 · 已结束</p>
     <h1 id="jxTitle">9/28 – 10/9，<br>十天里见到的人和事。</h1>
     <p class="lead">第 1 周主要是听各个职种讲自己的工作；第 2 周开始自己动手：写意见书、量血压、做介助。最上面是最终日的总结，接着是两周的整理，最下面按天看每天的笔记，每个症例都可以直接画成白紙。</p>
