@@ -2149,6 +2149,66 @@ dialog.hk-tsheet .hk-cover { background: var(--surface); -webkit-backdrop-filter
 #jisshuView .jx-hurt { stroke: var(--bh-red); }
 /* ==== /BH:drill-kokushi-jisshu ==== */
 </style>
+<style id="bh-maps">
+/* ================================================================
+   BH:maps —— 8 个科目地图的外围（科目切换・计时条・章节小块）
+   + 地图 shadow DOM 里要用的变量（--bhm-*，会穿过 shadow 边界继承）。
+   地图内部的样式在 JS 里的 MAP_POLISH_CSS 末尾「BH:maps」那一段。
+   ================================================================ */
+/* 分类色：7 类要一眼分得开。文字里写死的颜色要对得上：
+   介入=緑・予防/改善の破線=緑・評価の点線=青・悪化=赤・悪循環=金 */
+:root {
+  --bhm-mech: #141414; --bhm-tissue: #9c7a00; --bhm-path: var(--bh-red); --bhm-comp: #9a2f9a;
+  --bhm-imp: #e2741a; --bhm-tx: #2a7a3b; --bhm-dx: var(--bh-blue);
+  --bhm-good: #2a7a3b; --bhm-good-soft: #dbe7d2; --bhm-illus: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bhm-mech: #efe6d3; --bhm-tissue: #e3c13a; --bhm-comp: #d77fe0; --bhm-imp: #ff9a3c; --bhm-tx: #4fbf6a;
+    --bhm-good: #4fbf6a; --bhm-good-soft: #16291b; --bhm-illus: brightness(.74) saturate(.82);
+  }
+}
+:root[data-theme="dark"] {
+  --bhm-mech: #efe6d3; --bhm-tissue: #e3c13a; --bhm-comp: #d77fe0; --bhm-imp: #ff9a3c; --bhm-tx: #4fbf6a;
+  --bhm-good: #4fbf6a; --bhm-good-soft: #16291b; --bhm-illus: brightness(.74) saturate(.82);
+}
+
+/* 科目切换：四个直角黑框块拼成一排；选中 = 蓝底白字 + 黄色图标块 */
+#mapView .grp-head h2 { font-size: 15px; font-weight: 900; font-stretch: 115%; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); margin: 0 0 12px; }
+#mapView .grp-head h2::before { content: "→ "; color: var(--bh-red); }
+#mapView .grp-row { gap: 0; padding: 0 0 6px; }
+#mapView .grp-btn { border-radius: 0; border: 2px solid var(--rule); background: var(--surface); padding: 12px 18px 12px 12px; min-height: 64px; position: relative; }
+#mapView .grp-btn + .grp-btn { margin-left: -2px; }
+#mapView .grp-btn .gn { font-family: var(--font-display); font-stretch: 108%; font-weight: 800; }
+#mapView .grp-btn .gi { border-radius: 0; background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--rule); }
+#mapView .grp-btn .gi svg { stroke-width: 1.9; }
+@media (hover: hover) {
+  #mapView .grp-btn:hover:not([aria-pressed="true"]) { background: var(--surface-raised); border-color: var(--rule); }
+  #mapView .grp-btn:hover:not([aria-pressed="true"]) .gi { background: var(--bh-yellow); color: #141414; }
+}
+#mapView .grp-btn[aria-pressed="true"] { background: var(--bh-blue); border-color: var(--rule); color: var(--on-seiji); z-index: 1; }
+#mapView .grp-btn[aria-pressed="true"] .gi { background: var(--bh-yellow); color: #141414; box-shadow: inset 0 0 0 2px #141414; }
+#mapView .grp-btn[aria-pressed="true"] .gs { color: var(--on-seiji); opacity: .9; }
+#mapView .grp-btn:focus-visible { outline: 3px solid var(--bh-yellow); outline-offset: 2px; z-index: 2; }
+
+/* 计时条：黑框 + 左侧黄块，红点 = 正在计时 */
+#mapView .map-strip { background: var(--surface-raised); color: var(--ink); border: 2px solid var(--rule); border-radius: 0; box-shadow: inset 14px 0 0 var(--bh-yellow); padding: 10px 18px 10px 32px; }
+#mapView .map-strip .live { font-weight: 700; color: var(--ink); }
+#mapView .map-strip .live i { width: 10px; height: 10px; background: var(--bh-red); }
+#mapView .map-strip.is-live .live i { animation-name: bhm-live; }
+@keyframes bhm-live { 0%, 100% { box-shadow: 0 0 0 0 var(--bh-red); } 50% { box-shadow: 0 0 0 5px transparent; } }
+#mapView .map-strip .ms b { font-family: var(--font-num); font-stretch: 118%; font-weight: 800; font-size: 17px; }
+@media (prefers-reduced-motion: reduce) { #mapView .map-strip.is-live .live i { animation: none; } #mapView .grp-btn { transition: none; } }
+@media (max-width: 560px) { #mapView .map-strip { padding: 8px 12px 8px 26px; box-shadow: inset 10px 0 0 var(--bh-yellow); } }
+
+/* 今日页地图卡里的章节小块：直角黑框；读完 = 红色圆印 */
+.chap-row .chap-chip { border-radius: 0; border: 2px solid var(--rule); background: transparent; min-height: 44px; font-weight: 600; }
+@media (hover: hover) { .chap-row .chap-chip:hover { background: var(--bh-yellow); border-color: var(--rule); color: #141414; } }
+.chap-row .chap-chip .sm { border: 2px dashed var(--line); }
+.chap-row .chap-chip.is-done .sm { border: 0; background: var(--bh-red); color: #fff; }
+.chap-row .chap-chip:focus-visible { outline: 3px solid var(--bh-blue); outline-offset: 2px; }
+/* ==== /BH:maps ==== */
+</style>
 
 
 <header class="nav">
@@ -22834,7 +22894,158 @@ const MAP_POLISH_CSS = '.kind,.eq,.lph,.ctlh,.ctlh span,.ctlh em,.cd,.rel h3{fon
   + '.lead.is-clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}@media (max-width:760px){.lead.is-clamp{-webkit-line-clamp:2}}'
   + '.lead-more{display:inline-flex;align-items:center;gap:4px;margin:2px 0 0 -12px;padding:0 12px;min-height:44px;border:0;background:none;color:var(--m-in);font:600 13px var(--m-sans,inherit);cursor:pointer;border-radius:10px}.lead-more:hover{text-decoration:underline;text-underline-offset:3px}.lead-more[hidden]{display:none}'
   + '.map-note{margin:10px 0 0;padding-left:10px;border-left:2px solid var(--m-hair);color:var(--m-muted);font-size:12.5px;line-height:1.6;max-width:76ch}.map-note p{margin:0}.map-note p+p{margin-top:4px}.map-note b{color:var(--m-ink)}.map-note[hidden]{display:none}'
-  + '.modebar{margin-top:16px}@media (max-width:760px){.mbtn{padding:0 14px;min-height:44px}.lbtn{min-height:40px}}';
+  + '.modebar{margin-top:16px}@media (max-width:760px){.mbtn{padding:0 14px;min-height:44px}.lbtn{min-height:40px}}'
+  /* ==== BH:maps —— 8 个地图内部的包豪斯样式（变量 --bhm-* 在 <style id="bh-maps">）==== */
+  + `
+:host{--m-c-mech:var(--bhm-mech);--m-c-tissue:var(--bhm-tissue);--m-c-path:var(--bhm-path);--m-c-comp:var(--bhm-comp);--m-c-imp:var(--bhm-imp);--m-c-tx:var(--bhm-tx);--m-c-dx:var(--bhm-dx);
+  --m-relief:var(--bhm-good);--m-good:var(--bhm-good);--m-cycle:var(--bh-yellow);--m-in:var(--bh-blue);--m-accent:var(--bh-blue);
+  /* 中枢神経以下 7 科的节点/图例写的是 --c-*（之前没有定义，分类色一直没显示出来） */
+  --c-mech:var(--m-c-mech);--c-tissue:var(--m-c-tissue);--c-path:var(--m-c-path);--c-comp:var(--m-c-comp);--c-imp:var(--m-c-imp);--c-tx:var(--m-c-tx);--c-dx:var(--m-c-dx)}
+*,*::before,*::after{border-radius:0!important}
+/* 标题区：红点眉题 + 加宽粗体标题 + 右上角一组几何构成（只在标题上方/右侧，不压字） */
+.app>div:first-child{position:relative;isolation:isolate}
+.app>div:first-child>*{position:relative;z-index:1}
+.app>div:first-child::before,.app>div:first-child::after{content:"";position:absolute;z-index:0;pointer-events:none}
+.app>div:first-child::before{right:0;top:30px;width:92px;height:92px;background:var(--bh-red);border-radius:50%!important}
+.app>div:first-child::after{right:118px;top:18px;width:30px;height:118px;background:var(--bh-yellow);border-right:7px solid var(--rule)}
+.eyebrow{font-family:var(--font-display);font-stretch:115%;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--m-ink)}
+.app .eyebrow::before{content:"";display:inline-block;width:.7em;height:.7em;margin-right:.5em;background:var(--bh-red);border-radius:50%!important;vertical-align:-.02em}
+h1{font-family:var(--font-display);font-weight:900;font-stretch:112%;letter-spacing:-.01em;max-width:calc(100% - 170px)}
+h1::before{content:"→ ";color:var(--bh-red)}
+.app>div:first-child>.lead{max-width:min(60em,calc(100% - 180px))}
+.map-note{border-left:4px solid var(--bh-yellow);padding-left:12px}
+@media (max-width:760px){
+  .app>div:first-child{padding-top:52px}
+  .app>div:first-child::before{top:14px;width:30px;height:30px}
+  .app>div:first-child::after{top:27px;right:42px;left:0;width:auto;height:4px;background:var(--rule);border:0}
+  h1,.app>div:first-child>.lead{max-width:none}
+}
+/* 子标签栏：黑框格子，选中 = 黑底反白 */
+.modebar{background:transparent;border:2px solid var(--rule);padding:0;gap:0;align-self:flex-start;justify-self:start;box-shadow:none}
+.mbtn{font-family:var(--font-display);font-stretch:106%;font-weight:800;font-size:14px;color:var(--m-ink);padding:0 20px;min-height:44px;box-shadow:none}
+.mbtn+.mbtn{border-left:2px solid var(--rule)}
+@media (hover:hover){.mbtn:hover:not([aria-pressed="true"]){background:var(--bh-yellow);color:#141414}}
+.mbtn[aria-pressed="true"]{background:var(--rule);color:var(--surface);font-weight:800;box-shadow:none}
+@media (max-width:560px){.modebar{align-self:stretch;justify-self:stretch}.mbtn{padding:0 14px;font-size:13.5px}}
+/* 卡片：黑框 + 顶部原色条（入力=蓝・関係=黄・下流=红・講義=黑）；教科書の補足 = 虚线框 */
+.card,.ncard,.panel,.nside,.anstage{border:2px solid var(--rule);background:var(--m-surface);box-shadow:none}
+.card{--bar:var(--rule);box-shadow:inset 0 7px 0 var(--bar);padding-top:21px}
+.card.input{--bar:var(--bh-blue)}.card.relation{--bar:var(--bh-yellow)}.card.out{--bar:var(--bh-red)}
+.card.sup,.ncard.sup{border:2px dashed color-mix(in srgb,var(--m-ink) 55%,transparent)}
+.card.sup{--bar:color-mix(in srgb,var(--m-ink) 25%,transparent)}
+.card .kind,.card.input .kind,.card.relation .kind,.card.out .kind{font-family:var(--font-display);font-stretch:110%;font-weight:800;letter-spacing:.06em;color:var(--m-ink)}
+.card .kind[style]{color:var(--m-ink)!important}
+.lpcard{border-color:var(--rule)}
+.card[style*="border-color"]{border-color:var(--rule)!important}
+.card[style*="m-c-mech"]{--bar:var(--m-c-mech)}.card[style*="m-c-tissue"]{--bar:var(--m-c-tissue)}.card[style*="m-c-path"]{--bar:var(--m-c-path)}.card[style*="m-c-comp"]{--bar:var(--m-c-comp)}
+.card[style*="m-c-imp"]{--bar:var(--m-c-imp)}.card[style*="m-c-tx"]{--bar:var(--m-c-tx)}.card[style*="m-c-dx"]{--bar:var(--m-c-dx)}
+.card .name,.anhead h2,.nhead h2,.panel h2{font-family:var(--font-display);font-stretch:106%;font-weight:900}
+.ncard h3{font-family:var(--font-display);font-weight:800}
+.diagram-wrap{border:3px solid var(--rule);background:var(--m-surface);box-shadow:none}
+.maphint{border:2px solid var(--rule);background:var(--m-surface);color:var(--m-ink)}
+.kgame{border:2px solid var(--rule);background:var(--m-surface-2)}
+.ctl{border:0;border-left:4px solid var(--m-in);background:var(--m-surface-2)}
+.ainfo{border-left:6px solid var(--m-in)}
+.kstate{border:2px dashed var(--m-muted)}
+.ngrp{font-family:var(--font-display);font-stretch:110%;color:var(--m-ink);letter-spacing:.08em}
+.lect h3{font-family:var(--font-display);font-stretch:110%}
+/* 输入控件：黑线滑轨 + 蓝色圆点；下拉、分段按钮直角黑框，选中 = 黑底 */
+input[type=range]{height:26px;margin:6px 0 2px;background:linear-gradient(var(--m-ink),var(--m-ink)) center/100% 4px no-repeat}
+input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-radius:50%!important;background:var(--m-in);border:3px solid var(--m-surface);box-shadow:0 0 0 2px var(--m-ink)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%!important;background:var(--m-in);border:3px solid var(--m-surface);box-shadow:0 0 0 2px var(--m-ink)}
+.crow input[type=range]{height:22px;margin:2px 0 0}
+.crow input[type=range]::-webkit-slider-thumb{width:18px;height:18px;border-width:2px}
+input[type=range]:focus-visible{outline:3px solid var(--bh-yellow);outline-offset:2px}
+.card select,.nside input[type=search]{border:2px solid var(--rule);background-color:var(--m-surface);min-height:44px}
+.seg button,.cseg button{border:2px solid var(--rule);background:var(--m-surface);color:var(--m-ink)}
+.seg button[aria-pressed="true"],.cseg button[aria-pressed="true"]{background:var(--rule);border-color:var(--rule);color:var(--surface)}
+.cseg button[aria-pressed="true"] small{color:var(--surface)}
+.gauge{height:14px;border:2px solid var(--rule);background:var(--m-surface-2);box-sizing:border-box}
+.val{font-family:var(--font-num);font-stretch:118%;font-weight:800}
+/* 按钮类：全部直角黑框；切换类选中 = 黑底；主要动作 = 蓝底 */
+button.pill,button.tool,.atog,button.lbtn,.notebtn,.subb,.kab,.bandb,.kst-c{border:2px solid var(--rule);background:var(--m-surface);color:var(--m-ink);box-shadow:none}
+@media (hover:hover){
+  button.pill:not(.grp):not([aria-pressed="true"]):hover,button.tool:not([aria-pressed="true"]):hover,.atog:not([aria-pressed="true"]):hover,button.lbtn:hover,.notebtn:hover,.subb:not([aria-pressed="true"]):hover,.kab:not([aria-pressed="true"]):not(.kok):not(.kng):hover,.bandb:hover,button.nchip:hover{background:var(--bh-yellow);border-color:var(--rule);color:#141414}
+  .aplay:hover{filter:none;background:var(--rule);color:var(--surface)}
+  .ip-btn-secondary:hover:not(:disabled){background:var(--bh-yellow);color:#141414;filter:none}
+}
+button.pill[aria-pressed="true"],.atog[aria-pressed="true"]{background:var(--rule);border-color:var(--rule);color:var(--surface)}
+button.tool[aria-pressed="true"],button.tool#btnCycle[aria-pressed="true"]{background:var(--bh-yellow);border-color:var(--rule);color:#141414}
+button.pill.grp{border:0;background:transparent;font-family:var(--font-display);font-stretch:110%;font-weight:800;color:var(--m-ink)}
+button.lbtn,.notebtn{font-weight:700}
+.aplay{border:2px solid var(--rule);background:var(--bh-blue);color:var(--on-seiji)}
+.subb[aria-pressed="true"]{background:var(--bh-blue);border-color:var(--rule);color:var(--on-seiji)}
+.kst-c.on{background:var(--bh-blue);border-color:var(--rule);color:var(--on-seiji)}
+.kab{border-left:6px solid var(--kc,var(--rule))}
+.kab[aria-pressed="true"]{outline:0;background:var(--rule);color:var(--surface)}
+.kab[aria-pressed="true"] small{color:inherit;opacity:.8}
+.bandb[aria-pressed="true"]{outline:3px solid var(--m-ink);outline-offset:0;background:var(--m-surface-2)}
+.kans2 .kab{border-left-width:2px}.kband .kab{border-left-width:14px}
+.kab.kok{background:var(--bhm-good-soft);border-color:var(--m-good)}.kab.kng{background:var(--toki-soft);border-color:var(--m-bad)}
+.bandb{border-left:12px solid var(--bc)}
+button.nchip{border-width:2px;background:var(--m-surface)}
+.nbtn[aria-current="true"]{background:var(--rule);border-color:var(--rule);color:var(--surface)}
+.nbtn[aria-current="true"] .cnt,.nbtn[aria-current="true"] .sumi{color:inherit}
+.srcb{border:2px solid var(--rule);background:transparent;color:var(--m-ink)}
+.rel .rc{border-top:2px solid var(--rule);border-right:2px solid var(--rule);border-bottom:2px solid var(--rule)}
+.vd.lv0,.tbl td.lo{background:var(--bhm-good-soft)}
+.legend .sw{width:14px;height:14px;border-width:3px}.legend .el{width:22px;border-top-width:3px}
+button:focus-visible,.nbtn:focus-visible{outline:3px solid var(--bh-yellow);outline-offset:2px;box-shadow:0 0 0 5px var(--m-ink)}
+/* 章节达成块 */
+.chap{border:3px solid var(--rule);background:var(--m-surface);box-shadow:inset 14px 0 0 var(--bh-yellow);padding-left:36px}
+.chap.is-done{background:var(--m-surface);border-color:var(--rule);box-shadow:inset 14px 0 0 var(--bh-blue)}
+.chap-eyebrow{font-family:var(--font-display);font-stretch:115%;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--m-ink)}
+.chap .chap-eyebrow::before{content:"";display:inline-block;width:.7em;height:.7em;margin-right:.5em;background:var(--bh-red);border-radius:50%!important;vertical-align:-.02em}
+.chap h3{font-weight:900;font-stretch:112%}
+.ip-btn{border:2px solid var(--rule);font-weight:700}
+.ip-btn-primary{background:var(--bh-blue);color:var(--on-seiji)}
+.ip-btn-secondary{background:transparent;color:var(--m-ink)}
+.ip-btn-reward{background:var(--bh-yellow);color:#141414}
+.ip-btn:active:not(:disabled){transform:translate(2px,2px)}
+.ip-btn-link{border:0}
+/* 因果图：节点 = 直角方块（分类色粗框 + 同色浅底），箭头加粗；选中 = 硬阴影 */
+.node rect{rx:0;ry:0}
+.node>rect{stroke-width:2.5}
+.node>rect[stroke*="mech"]{fill:color-mix(in srgb,var(--m-c-mech) 9%,var(--m-surface))}
+.node>rect[stroke*="tissue"]{fill:color-mix(in srgb,var(--m-c-tissue) 14%,var(--m-surface))}
+.node>rect[stroke*="path"]{fill:color-mix(in srgb,var(--m-c-path) 13%,var(--m-surface))}
+.node>rect[stroke*="comp"]{fill:color-mix(in srgb,var(--m-c-comp) 13%,var(--m-surface))}
+.node>rect[stroke*="imp"]{fill:color-mix(in srgb,var(--m-c-imp) 15%,var(--m-surface))}
+.node>rect[stroke*="tx"]{fill:color-mix(in srgb,var(--m-c-tx) 13%,var(--m-surface))}
+.node>rect[stroke*="dx"]{fill:color-mix(in srgb,var(--m-c-dx) 12%,var(--m-surface))}
+.node .lbl-ja{font-size:13.5px;font-weight:700}
+.node .lbl-zh{font-size:11px;fill:var(--m-muted)}
+.node .lbl-memo{font-size:11px;fill:var(--m-ink)!important}
+.node .bdg rect{fill:var(--m-surface);stroke:var(--m-ink);stroke-width:1.5}
+.node .bdg text{fill:var(--m-ink);font-size:10px}
+svg.web .node.sel>rect{stroke-width:4;filter:drop-shadow(4px 4px 0 var(--m-ink))}
+.node:focus-visible>rect{filter:drop-shadow(0 0 0 var(--m-ink));stroke-width:4}
+.edge{stroke-linecap:butt}
+.edge.harm{stroke-width:2;opacity:.62}
+.edge.relief{stroke-width:2;opacity:.72}
+.edge.cycle{stroke-width:3;opacity:.95}
+.curve{stroke:var(--m-ink);stroke-width:3}
+.handle{fill:var(--bh-yellow);stroke:var(--m-ink);stroke-width:2.5}
+/* 動く図解：插图本身不动，只调外框；深色模式降一点亮度，免得晃眼 */
+.asvg{filter:var(--bhm-illus,none)}
+.alja{font-size:13px}.alzh{font-size:11.5px}.axlab{font-size:11.5px}.phl{font-size:11px}
+@media (max-width:760px){
+  button.pill,button.tool,.atog,button.lbtn,.notebtn,.seg button,.cseg button,button.nchip,.nbtn,.subb,.kab,.bandb,.aplay,.rel .rc,.ip-btn{min-height:44px}
+  .card select{min-height:48px}
+  /* 手机：主题按钮、工具按钮各收成一行横滑，免得把图挤到好几屏以下 */
+  .pills,.toolbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:2px 32px 4px 2px;margin-inline:-2px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent)}
+  .pills::-webkit-scrollbar,.toolbar::-webkit-scrollbar{display:none}
+  .pills>*,.toolbar>*{flex:none;white-space:nowrap}
+}
+/* 手机：動く図解的目录也收成一行横滑，图解本身不再被 30 个条目压到下面 */
+@media (max-width:860px){
+  #alist{flex-direction:row;flex-wrap:nowrap;align-items:stretch;overflow-x:auto;scrollbar-width:none;gap:6px;padding:2px 32px 6px 2px;margin-inline:-2px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent)}
+  #alist::-webkit-scrollbar{display:none}
+  #alist .ngrp{flex:none;width:auto;margin:0;display:flex;align-items:center;padding:0 8px 0 10px;white-space:nowrap;background:transparent;color:var(--m-ink);box-shadow:inset 6px 0 0 var(--bh-red)}
+  #alist .nbtn{flex:0 0 auto;width:auto;max-width:230px;border:2px solid var(--rule)}
+}
+@media (prefers-reduced-motion:reduce){.ip-btn:active:not(:disabled){transform:none}.mbtn,button.pill,button.tool{transition:none}}
+`;
 function clampLeads(root) {
   root.querySelectorAll('.lead').forEach((lead) => {
     const btn = document.createElement('button');
