@@ -73,11 +73,13 @@ const L = (d, style) => k.lineSvg(d, style);
 const D = (points, style) => k.dotsSvg(points, style);
 const byDepth = (pts) => [...pts].sort((a, b) => k.depthOf([a[0], a[1], 0], P) - k.depthOf([b[0], b[1], 0], P));
 const paint = (paths, color, extra = "") => S(paths, { className: "tb-paint" }).replace('<g class="iso-solid tb-paint"', `<g class="iso-solid tb-paint" style="--tb-c:${color}"${extra}`);
+const sm = (svg) => svg.replace('<g class="iso-solid', '<g data-sm class="iso-solid'); // small part: thinner outline
 const screw = (x, y, z, r = 1.9) => L(k.ring(x, y, r, z, P, 16), { tone: "lo" }) + D([at([x, y, z])], { size: 0.5 });
 
 /* ---------- base ---------- */
 function base() {
-  const out = [`<path class="iso-halo" d="${k.haloOf(PLATE, -PLATE_H - FOOT_H, PLATE_H, P)}"/>`];
+  // Bauhaus hard shadow: the plate's silhouette, offset down-right by a fixed number of display px (CSS)
+  const out = [`<path class="tb-drop" d="${k.slabOf(PLATE, -PLATE_H, PLATE_H, P, 8).fill}"/>`];
   for (const [x, y] of byDepth(k.corners(PLATE, 24))) {
     out.push(S(k.cylinder(x, y, 7.5, -PLATE_H - FOOT_H, 1.6, P, 28), { tone: "lo" }));
     out.push(S(k.cylinder(x, y, 5.6, -PLATE_H - FOOT_H + 1.6, FOOT_H - 1.6, P, 28), { tone: "mid" }));
@@ -104,12 +106,11 @@ function ruler() {
   out.push(D([at([RULER.x + 3, RULER.y + 2.6, top]), at([RULER.x + RULER.w - 3, RULER.y + 2.6, top])], { size: 0.45 }));
   return out.join("");
 }
-// the printed scale on the bench's front face: majors run from the top edge down, numerals under them
+// the printed scale on the bench's front face: majors run the full face height; the numerals hang under the
+// bench as HTML (LABELS below) so they stay 12px at any width, phone included
 function frontScale() {
   const face = PLATE.y + PLATE.d, out = [];
-  out.push(L([0, 20, 40, 60].map((cm) => k.segment([C.XC0 + cm * C.U, face, 0], [C.XC0 + cm * C.U, face, -3], P)).join(""), { tone: "hi" }));
-  for (const cm of [0, 20, 40, 60]) out.push(k.faceTextSvg(k.sideMatrix([C.XC0 + cm * C.U, face], -3.9, P, "left"), cm ? `+${cm}` : "0", { size: 3.6, tone: "hi", anchor: "middle" }).replace("<text", '<text dominant-baseline="hanging"'));
-  out.push(k.faceTextSvg(k.sideMatrix([C.XC0 + 60 * C.U + 9, face], -3.9, P, "left"), "cm", { size: 3, tone: "mid", anchor: "start" }).replace("<text", '<text dominant-baseline="hanging"'));
+  out.push(L([0, 20, 40, 60].map((cm) => k.segment([C.XC0 + cm * C.U, face, 0], [C.XC0 + cm * C.U, face, -PLATE_H], P)).join(""), { tone: "hi" }));
   return out.join("");
 }
 
@@ -131,7 +132,7 @@ function level() {
   const out = [S(k.slabOf(LEVEL, 0, 3.4, P, 4, 0.5), { tone: "mid" })];
   const win = { x: LEVEL.x + 6, y: LEVEL.y + 3, w: LEVEL.w - 12, d: LEVEL.d - 6, r: 2.5 };
   out.push(L(k.planOutline(win, 3.4, P, 4), { tone: "lo" }));
-  out.push(S(k.slabOf(k.insetPlan(win, 0.9), 3.4, 0.5, P, 4), { tone: "hi", lit: true, crease: "none" }));
+  out.push(sm(S(k.slabOf(k.insetPlan(win, 0.9), 3.4, 0.5, P, 4), { tone: "hi", lit: true, crease: "none" })));
   const cx = LEVEL.x + LEVEL.w / 2, cy = LEVEL.y + LEVEL.d / 2;
   out.push(L(k.lineOnTop([cx - 4, win.y + 0.9], [cx - 4, win.y + win.d - 0.9], 3.9, P) + k.lineOnTop([cx + 4, win.y + 0.9], [cx + 4, win.y + win.d - 0.9], 3.9, P), { tone: "mid" }));
   out.push(L(k.ring(cx, cy, 2.2, 3.9, P, 24), { tone: "hi" }));
@@ -159,7 +160,7 @@ function loadCell() {
   out.push(screw(HOUSING.x + 6, HOUSING.y + 6, top, 1.7), screw(HOUSING.x + 6, HOUSING.y + HOUSING.d - 6, top, 1.7), screw(HOUSING.x + HOUSING.w - 6, HOUSING.y + 6, top, 1.7));
   // zero-adjust knob on the lid
   const kn = [HOUSING.x + HOUSING.w - 9, HOUSING.y + HOUSING.d - 9];
-  out.push(S(k.cylinder(kn[0], kn[1], 4.2, top, 4, P, 28, 0.4), { tone: "mid" }));
+  out.push(sm(S(k.cylinder(kn[0], kn[1], 4.2, top, 4, P, 28, 0.4), { tone: "mid" })));
   out.push(L(k.knurl(kn[0], kn[1], 4.2, top, top + 4, 26, P, 0.5), { tone: "lo" }));
   out.push(L(k.lineOnTop([kn[0] - 2.6, kn[1] + 2.6], [kn[0] + 2.6, kn[1] - 2.6], top + 4, P), { tone: "hi" }));
   // the dial, turned along +y out of the front face: bezel ring, white face, scale 0–8 kg
@@ -181,21 +182,31 @@ function loadCell() {
   };
   out.push(L(G.circleOf(G.frameOf([x, fy, z], [0, 1, 0], [1, 0, 0], [0, 0, 1]), 0, R - 1.6, P, 96), { tone: "lo" }));
   const t = tick(40, 5, [1.3, 2.8]);
-  out.push(L(t.minor, { tone: "lo" }), L(t.major, { tone: "hi" }));
+  out.push(L(t.minor, { tone: "lo", className: "tb-dt" }), L(t.major, { tone: "hi", className: "tb-dt" }));
+  // numerals carry data-kg so the phone layout can hide them (it draws its own 0 / 4 / 8, see dialPhoneNums)
   for (const kg of [0, 2, 4, 6, 8]) {
-    const a = C.FROM + (kg / C.KGMAX) * C.SPAN, p = pt(a, R - 8.2);
-    out.push(k.faceTextSvg(k.sideMatrix([p[0], fy], p[2] - 1.25, P, "left"), String(kg), { size: 3.6, tone: "hi", anchor: "middle" }));
+    const a = C.FROM + (kg / C.KGMAX) * C.SPAN, p = pt(a, R - 8.6);
+    out.push(k.faceTextSvg(k.sideMatrix([p[0], fy], p[2] - 1.6, P, "left"), String(kg), { size: 4.6, tone: "hi", anchor: "middle" }).replace("<text", `<text data-kg="${kg}"`));
   }
-  out.push(k.faceTextSvg(k.sideMatrix([x, fy], z - 6.2, P, "left"), "kg", { size: 2.8, tone: "mid", anchor: "middle" }));
+  out.push(k.faceTextSvg(k.sideMatrix([x, fy], z - 6.4, P, "left"), "kg", { size: 3, tone: "mid", anchor: "middle" }).replace("<text", '<text data-kg="u"'));
   return out.join("");
 }
 function fadedRibs(F, s0, s1, r, count) {
   return k.fadedSvg(G.ribsOf(F, s0, s1, r, count, P, { fade: [0.1, 0.55] }), { tone: "lo" });
 }
+// Phone only (style.css shows them under [data-m]): 0 / 4 / 8, large, drawn OVER the needle with a halo of
+// the dial-face colour, so the resting needle (0 kg points straight at "0") never hides a numeral.
+function dialPhoneNums() {
+  const [x, , z] = C.DIAL, fy = C.DIAL[1] + 0.05;
+  return [0, 4, 8].map((kg) => {
+    const a = C.FROM + (kg / C.KGMAX) * C.SPAN, r = C.DIAL_R - 9.2;
+    return k.faceTextSvg(k.sideMatrix([x + Math.sin(a) * r, fy], z + Math.cos(a) * r, P, "left"), String(kg), { size: 4.6, tone: "hi", anchor: "middle" }).replace("<text", `<text data-kgm="${kg}"`);
+  }).join("");
+}
 function dialHub() {
   const [x, y, z] = C.DIAL;
   const F = G.frameOf([x, y, z], [0, 1, 0], [1, 0, 0], [0, 0, 1]);
-  return S(G.sphereOf([x, y + 0.6, z], 1.8, P), { tone: "hi" }) + D([at([x, y + 2.2, z])], { size: 0.55, tone: "red" });
+  return sm(S(G.sphereOf([x, y + 0.6, z], 1.8, P), { tone: "hi" })) + D([at([x, y + 2.2, z])], { size: 0.55, tone: "red" });
 }
 
 /* ---------- shaft from the load cell to the anchor jaw ---------- */
@@ -212,7 +223,7 @@ function jaw(x0, y0, w, d, zTop, screws) {
   out.push(S(k.slabOf(lo, C.ZB - 7, 7 - C.BT / 2, P, 3, 0.4), { tone: "mid" }));
   out.push(S(k.slabOf(lo, C.ZB + C.BT / 2, zTop - C.ZB - C.BT / 2, P, 3, 0.4), { tone: "hi", crease: "lo" }));
   for (const [sx, sy] of screws) {
-    out.push(S(k.cylinder(sx, sy, 2.1, zTop, 1.3, P, 20), { tone: "mid" }));
+    out.push(sm(S(k.cylinder(sx, sy, 2.1, zTop, 1.3, P, 20), { tone: "mid" })));
     out.push(L(k.lineOnTop([sx - 1.6, sy], [sx + 1.6, sy], zTop + 1.3, P), { tone: "lo" }));
   }
   return out.join("");
@@ -223,29 +234,30 @@ function anchorJaw() {
 
 /* ---------- colour samples (levels −2 … +5) ---------- */
 function rack() {
-  const out = [S(k.slabOf(RACK, 0, TILE_Z, P, 4, 0.4), { tone: "mid" })];
+  const out = ['<g class="tb-rack">', S(k.slabOf(RACK, 0, TILE_Z, P, 4, 0.4), { tone: "mid" })];
   COLORS.forEach((_, i) => out.push(L(k.planOutline(k.insetPlan(TILE(i), -0.5), TILE_Z, P, 3), { tone: "faint" })));
   out.push(D([at([RACK.x + 2.2, RACK.y + RACK.d / 2, TILE_Z]), at([RACK.x + RACK.w - 2.2, RACK.y + RACK.d / 2, TILE_Z])], { size: 0.45 }));
-  COLORS.forEach((c, i) => out.push(`<g class="tb-tile" data-tile="${c}">${paint(k.slabOf(TILE(i), TILE_Z, TILE_H, P, 3, 0.3), HEX[c])}</g>`));
+  COLORS.forEach((c, i) => out.push(`<g class="tb-tile" data-tile="${c}">${sm(paint(k.slabOf(TILE(i), TILE_Z, TILE_H, P, 3, 0.3), HEX[c]))}</g>`));
+  out.push("</g>");
   return out.join("");
 }
 
 /* ---------- carriage ---------- */
 function carriage() {
-  const out = [`<path class="iso-halo" d="${k.haloOf(k.insetPlan(CAR, 3), 2, 0.1, P)}" style="filter:blur(5px)"/>`];
+  const out = [];
   const bush = byDepth([[2, -22.5], [24, -22.5], [2, 13.5], [24, 13.5]]);
   for (const [x, y] of bush) {
     const plan = { x, y, w: 10, d: 9, r: 1.2 };
-    out.push(S(k.slabOf(plan, 2, CAR_Z - 2, P, 3, 0.3), { tone: "mid" }));
+    out.push(sm(S(k.slabOf(plan, 2, CAR_Z - 2, P, 3, 0.3), { tone: "mid" })));
   }
   out.push(S(k.slabOf(CAR, CAR_Z, CAR_TOP - CAR_Z, P, 5, 0.6), { tone: "mid", inner: L(k.sideSeam(CAR, CAR_Z + 1.6, P, 5), { tone: "faint" }) }));
   out.push(D([7, 15, 21, 29].map((x) => at([x, CAR.y + CAR.d - 2.4, CAR_TOP])), { size: 0.4, tone: "lo" }));
   out.push(L(k.lineOnTop([12, CAR.y], [12, CAR.y + CAR.d], CAR_TOP, P), { tone: "faint" }));
   // index bracket that reaches down to the ruler; its hairline marks the jaw face = stretch in cm
-  out.push(S(k.slabOf({ x: -2, y: CAR.y + CAR.d - 1, w: 4, d: 22, r: 0.8 }, CAR_TOP - 1.6, 1.6, P, 2), { tone: "mid" }));
+  out.push(sm(S(k.slabOf({ x: -2, y: CAR.y + CAR.d - 1, w: 4, d: 22, r: 0.8 }, CAR_TOP - 1.6, 1.6, P, 2), { tone: "mid" })));
   const FOOT_Z = RULER_H + 0.4;
-  out.push(S(k.slabOf({ x: -2, y: 43.6, w: 4, d: 2.4, r: 0.5 }, FOOT_Z + 0.6, CAR_TOP - 1.6 - FOOT_Z - 0.6, P, 2), { tone: "mid", crease: "none" }));
-  out.push(S(k.slabOf({ x: -3, y: 43.6, w: 6, d: 12, r: 0.8 }, FOOT_Z, 0.6, P, 2), { tone: "hi", lit: true }));
+  out.push(sm(S(k.slabOf({ x: -2, y: 43.6, w: 4, d: 2.4, r: 0.5 }, FOOT_Z + 0.6, CAR_TOP - 1.6 - FOOT_Z - 0.6, P, 2), { tone: "mid", crease: "none" })));
+  out.push(sm(S(k.slabOf({ x: -3, y: 43.6, w: 6, d: 12, r: 0.8 }, FOOT_Z, 0.6, P, 2), { tone: "hi", lit: true })));
   out.push(L(k.lineOnTop([0, 44], [0, 55.2], FOOT_Z + 0.6, P), { tone: "red" }));
   // jaw that grips the band
   out.push(jaw(0, -16, 10, 32, C.ZB + 7, [[5, -9.5], [5, 9.5]]));
@@ -272,10 +284,11 @@ function figure({ cm = 0, color = "red", kg = 0 } = {}) {
     base(),
     frontScale(),
     rails(),
-    `<g data-part="arrow">${solidShell("tb-paint", ' style="--tb-c:var(--tbf-red)"')}</g>`,
+    `<g data-part="arrow">${solidShell("tb-paint", ' data-sm style="--tb-c:var(--tbf-red)"')}</g>`,
     ruler(),
     loadCell(),
     `<path data-part="needle" class="iso-line" data-tone="red" data-free="start" d=""/>`,
+    dialPhoneNums(),
     dialHub(),
     rack(),
     level(),
@@ -318,6 +331,30 @@ function runtimeKit(roots) {
 }
 const fnSource = (fn) => fn.toString().split("\n").map((l) => l.trim()).filter(Boolean).join("\n");
 
+/* ---------- HTML numerals under the front scale, and the phone viewBox ---------- */
+// Each label: [text, unit, user x, user y] at the bottom edge of the bench's front face under its tick;
+// live.js places it as a percentage of the current viewBox and style.css hangs it below the hard shadow.
+const LABELS = [0, 20, 40, 60].map((cm) => {
+  const [ux, uy] = at([C.XC0 + cm * C.U, PLATE.y + PLATE.d, -PLATE_H]);
+  return [cm ? `+${cm}` : "0", cm === 60 ? "cm" : "", +ux.toFixed(1), +uy.toFixed(1)];
+});
+// Phone (≤640px): a tighter viewBox around the WHOLE bench (rounded plate, hard shadow, numerals) with only a
+// few display px of margin, so nothing is cut by the card and the drawing is as large as the width allows.
+// Margins are in display px at the phone's scale.
+const VBM = (() => {
+  const pts = [
+    ...k.ringOf(PLATE, 8).flatMap(([x, y]) => [[x, y, 0], [x, y, -PLATE_H]]),
+    ...k.boxCorners(HOUSING, 3, HOUSING_TOP + 4),
+  ].map(at);
+  let x0 = Math.min(...pts.map((p) => p[0])), x1 = Math.max(...pts.map((p) => p[0]));
+  let y0 = Math.min(...pts.map((p) => p[1])), y1 = Math.max(...pts.map((p) => p[1]));
+  const s = 326 / (x1 - x0 + 12); // display px per user unit on a 390px phone (card stage ≈ 326px)
+  const px = (n) => n / s;
+  x0 -= px(2.5); x1 += px(5 + 2); y0 -= px(3);
+  y1 = Math.max(y1 + px(5 + 2), ...LABELS.map((l) => l[3] + px(4 + 3 + 8 + 13))); // shadow, gap, "cm" drop, its height
+  return [x0, y0, x1 - x0, y1 - y0].map((v) => +v.toFixed(1));
+})();
+
 /* ---------- write the generated block ---------- */
 const css = readFileSync(join(HERE, "style.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\s*\n\s*/g, "").trim();
 const svg = figure();
@@ -329,6 +366,7 @@ ${dynCode}
 const C=${JSON.stringify(C)};
 const P=${JSON.stringify(P)};
 return {C,P,extrude,lineOnTop,translateAlong,axisVector,iso,bandSolid,bandMarks,arrowSolid,needleD,screenOfCm,
+vb:[0,0,${WIDTH},${HEIGHT}],vbm:${JSON.stringify(VBM)},lab:${JSON.stringify(LABELS)},
 css:${JSON.stringify(css)},
 svg:${JSON.stringify(svg)}};
 })();`;
@@ -361,9 +399,9 @@ if (pv > 0) {
       };
       const svgPose = fill(figure({ cm, color, kg }));
       const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
-:root{--surface-raised:${theme === "light" ? "#f7f1e3" : "#1b1b1b"};--rule:${theme === "light" ? "#141414" : "#efe6d3"};--m-surface:var(--surface-raised);--m-ink:var(--rule);--m-muted:${theme === "light" ? "#4d473d" : "#b3ab9b"};--bh-red:${theme === "light" ? "#d13a26" : "#ef5a42"};--bh-blue:${theme === "light" ? "#1d52b0" : "#5c8ff0"};--bh-yellow:#f2b51c;--font-display:Archivo,sans-serif;--font-num:Archivo,sans-serif}
+:root{--surface-raised:${theme === "light" ? "#f7f1e3" : "#201d17"};--rule:${theme === "light" ? "#141414" : "#efe6d3"};--m-surface:var(--surface-raised);--m-ink:var(--rule);--m-muted:${theme === "light" ? "#4d473d" : "#b3ab9b"};--bh-red:${theme === "light" ? "#d13a26" : "#ef5a42"};--bh-blue:${theme === "light" ? "#1d52b0" : "#5c8ff0"};--bh-yellow:#f2b51c;--font-display:Archivo,sans-serif;--font-num:Archivo,sans-serif}
 body{margin:0;background:var(--surface-raised);font:14px/1.6 sans-serif}main{width:min(900px,100% - 24px);margin:24px auto}
-${readFileSync(join(HERE, "style.css"), "utf8")}</style></head><body><main><figure class="tbf"${theme === "dark" ? ' data-tone="dark"' : ""}><div class="tbf-plate iso-plate">${svgPose}</div></figure></main></body></html>`;
+${readFileSync(join(HERE, "style.css"), "utf8")}</style></head><body><main><figure class="tbf"${theme === "dark" ? ' data-tone="dark"' : ""}><div class="tbf-plate iso-plate"><div class="tbf-art">${svgPose}<div class="tbf-ov">${LABELS.map((l) => `<span${l[1] ? ` data-u="${l[1]}"` : ""} style="left:${(l[2] / WIDTH * 100).toFixed(2)}%;top:${(l[3] / HEIGHT * 100).toFixed(2)}%">${l[0]}</span>`).join("")}</div></div></div></figure></main></body></html>`;
       writeFileSync(join(dir, `${name}-${theme}.html`), html);
     }
   }

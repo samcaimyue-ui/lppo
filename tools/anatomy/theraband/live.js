@@ -11,7 +11,7 @@
   const C=TB.C,P=TB.P,KEYS=Object.keys(BD);
   const fig=K.div("tbf","",stage);
   fig.innerHTML=`<style>${TB.css}</style><div class="tbf-plate"><div class="tbf-row"><span class="tbf-fig">Fig 1</span><span class="tbf-title">張力テスト台 · 张力测试台</span></div>`
-    +`<div class="tbf-stage" tabindex="0" role="slider" aria-label="伸ばす長さ(←→キーで1cm、Shift+←→で5cm)" aria-valuemin="0" aria-valuemax="60">${TB.svg}</div>`
+    +`<div class="tbf-stage" tabindex="0" role="slider" aria-label="伸ばす長さ(←→キーで1cm、Shift+←→で5cm)" aria-valuemin="0" aria-valuemax="60"><div class="tbf-art">${TB.svg}<div class="tbf-ov" aria-hidden="true">${TB.lab.map(l=>`<span${l[1]?` data-u="${l[1]}"`:""}>${l[0]}</span>`).join("")}</div></div></div>`
     +`<div class="tbf-row"><span class="tbf-hint">◎をドラッグ · ←→キー</span><span class="tbf-read"><b>0.0</b><span class="tbf-u">kg</span><i></i></span></div></div>`
     +`<div class="tbf-legend"><span class="tbf-key"><i data-k="red"></i>赤=手にかかる抵抗(針・矢印)<small>红=手上的阻力</small></span><span class="tbf-key"><i data-k="blue"></i>◎=ハンドル<small>把手</small></span><span class="tbf-key"><i data-k="band"></i>印の間隔が開く=伸び<small>刻印间距变大=拉长</small></span></div>`;
   const svg=fig.querySelector("svg"),scr=fig.querySelector(".tbf-stage"),q=s=>svg.querySelector(s);
@@ -25,6 +25,13 @@
   const tone=()=>{const m=(getComputedStyle(fig).color.match(/[\d.]+/g)||[0,0,0]).map(Number);fig.dataset.tone=(0.2126*m[0]+0.7152*m[1]+0.0722*m[2])/255>0.5?"dark":"light";};
   const mq=matchMedia("(prefers-color-scheme: dark)"),mo=new MutationObserver(tone);
   tone();mq.addEventListener("change",tone);mo.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme","class","style"]});
+  // 幅に合わせる:スマホ幅(≤640px)は枠を詰めた viewBox。--tbf-s=画面px/SVG単位(硬い影を常に同じpxに)。目盛りの数字はHTMLで重ねる
+  const art=fig.querySelector(".tbf-art"),labs=[...fig.querySelectorAll(".tbf-ov span")];let vbNow="";
+  const fit=()=>{const w=art.clientWidth;if(!w)return;const m=innerWidth<=640||w<520,vb=m?TB.vbm:TB.vb,s=vb.join(" ");
+    if(s!==vbNow){vbNow=s;svg.setAttribute("viewBox",s);if(m)fig.dataset.m="";else delete fig.dataset.m;
+      labs.forEach((e,i)=>{const l=TB.lab[i];e.style.left=((l[2]-vb[0])/vb[2]*100).toFixed(2)+"%";e.style.top=((l[3]-vb[1])/vb[3]*100).toFixed(2)+"%";});}
+    fig.style.setProperty("--tbf-s",(w/vb[2]).toFixed(4));};
+  const ro=typeof ResizeObserver==="function"?new ResizeObserver(fit):null;if(ro)ro.observe(art);fit();
 @@L15@@
 @@L16@@
 @@L17@@
@@ -62,5 +69,5 @@
     if(calm){nk=want;nv=0;}else{const h=dt/4;for(let i=0;i<4;i++){nv+=((want-nk)*260-nv*24)*h;nk+=nv*h;}if(Math.abs(want-nk)<0.0005&&Math.abs(nv)<0.0005){nk=want;nv=0;}}
     draw();}
   task();nk=kgOf(st.c,vx);draw();
-  return {tick(dt){step(dt||0);},destroy(){mq.removeEventListener("change",tone);mo.disconnect();}};
+  return {tick(dt){step(dt||0);},destroy(){mq.removeEventListener("change",tone);mo.disconnect();if(ro)ro.disconnect();}};
  }});
