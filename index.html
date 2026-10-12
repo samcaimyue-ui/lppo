@@ -2351,6 +2351,10 @@ dialog.hk-tsheet .hk-gcard[aria-pressed="true"] { box-shadow: inset 0 0 0 3px va
   #mapView .map-strip .ms b { font-size: 15px; }
   /* 「回到今日」贴在右端，长科目名横滑时也一直看得见 */
   #mapView .map-strip .ip-btn-link { order: 8; margin-left: auto; min-height: 44px; padding: 0 0 0 12px; font-size: 14px; position: sticky; right: 0; z-index: 1; background: var(--surface); box-shadow: -12px 0 10px -6px var(--surface); }
+  /* 统计不被「回到今日」盖住：放不下时只把科目名缩成「基礎運動…」，分钟数和「/ 14 章」完整显示 */
+  #mapView .map-strip { gap: 0 12px; }
+  #mapView .map-strip .live + .ms { display: inline-flex; align-items: baseline; gap: .3em; min-width: 0; flex: 0 1 auto; }
+  #mapView .map-strip #msName { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 
 /* 今日页地图卡里的章节小块：直角黑框；读完 = 红色圆印 */
@@ -22523,6 +22527,7 @@ function ensureMap(M) {
   ['pointerdown', 'keydown', 'input', 'wheel'].forEach((ev) => root.addEventListener(ev, markActive, { capture: true, passive: true }));
   try { M.views = def.mount(root, makeBus(M)); clampLeads(root); tagLph(root); groupPills(root); foldLegend(root); mapZoom(M, root); hfadeAll(root); }
   catch (e) { M.views = null; root.innerHTML = '<p style="padding:24px;font-family:sans-serif">地图没能加载：' + esc(e && e.message ? e.message : e) + '</p>'; }
+  if (M.views) { try { subbMarks(root); stripWatch(root); } catch (e) { /* 只影响外观，不让地图挂掉 */ } }
 }
 function curMap() { return MAPS[tab] || null; }
 const GROUPS = {
@@ -22538,6 +22543,7 @@ function renderGrpHead() {
   if (!g) { el.hidden = true; return; }
   el.hidden = false;
   el.innerHTML = `<h2>${esc(GROUPS[g].name)} · 切换科目</h2><div class="grp-row">` + grpMembers(g).map(([k, ic, nm]) => { const s = grpStat(MAPS[k]); return `<button type="button" class="grp-btn" data-grp-go="${k}" aria-pressed="${k === tab}"><span class="gi">${ic}</span><span class="gn">${esc(nm)}</span><span class="gs">读完 ${s.chap}/${s.n} 章 · 今天 ${fmt(s.min)} 分</span></button>`; }).join('') + '</div>';
+  requestAnimationFrame(() => stripCenter(el.querySelector('.grp-row'), false)); // 手机：当前科目滚到中间
 }
 function renderGrpTiles() {
   Object.keys(GROUPS).forEach((g) => { const ul = $('#gt' + g + 'List'); if (!ul) return;
@@ -23550,6 +23556,32 @@ button.nchip,button.nchip[style]{border:2px solid var(--rule)!important;color:va
 .kab.kok:not(.ksel){background:var(--bh-blue);border-color:var(--bh-blue);border-left-color:var(--kc,var(--bh-blue));color:var(--on-seiji)}
 .kab.kok:not(.ksel)::after{content:" ✓";font-weight:900}
 .kab.kng::after{content:" ✗";font-weight:900}
+/* ---- BH:maps r3 —— 子類编号、说明字下限 13px、手机子标签 2×2 ---- */
+/* 子類条：彩色 emoji 换成红色两位编号（共用 JS subbMarks 替换）；「すべて」= 红黄蓝三色块 */
+.subb .sbi{display:inline-flex;align-items:center;justify-content:center;min-width:2.2ch}
+.subb .bhn{font-family:var(--font-num);font-stretch:118%;font-size:18px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.01em;color:var(--bh-red)}
+.subb .bhn-all{display:block;width:14px;height:14px;background:linear-gradient(90deg,var(--bh-red) 0 33.4%,var(--bh-yellow) 0 66.7%,var(--bh-blue) 0)}
+/* 说明字下限 13px；计数类 = 等宽数字 + 次要墨色 */
+.subnote,.maphint,.foot,.legend,.legend .item,.srcb,.suptog,.chip,.ctlh,.ctlh span,.ctlh em,.hint,.hint b,.th,.u,.cd,.badge,.supn,.rcnow,.kst-l,.kst-h,.kst-c,.actll,.aitag,.lnote,summary,button.lbtn,button.rc,button.pill,button.tool,.notebtn,.atog{font-size:13px}
+.val .u,.n .u,details.cmore summary,details.lp summary,.seg button,.abar .seg button,.cseg button,.cseg button small,.kstate .kst-l,.kgt,.kgs small,.cl,.cl .cn,.cl .cv,.tix .th,.rel .rc,button.lnote,button.suptog,.crow .cd,.panel .chip,.gprow .gpn em{font-size:13px}
+.name .rcnow[style]{font-size:13px!important}
+/* 影響する変数の行：字放大后变量名不截断 —— 放不下时数值・小图・↑悪化 换到下一行靠右 */
+.cl{flex-wrap:wrap;row-gap:2px}.cl .cn{flex:1 0 auto;max-width:100%}.cl .cv,.cl .cd{margin-left:auto}
+.nbtn .cnt,.subb .sbc,.srcb b{font-size:13px;font-variant-numeric:tabular-nums;color:var(--ink-secondary)}
+.bdgl{font-size:13px;font-variant-numeric:tabular-nums;padding:0 5px;line-height:1.35}
+.legend{color:var(--ink-secondary)}
+@media (max-width:640px){.subb .bhn{font-size:14px}.subb .bhn-all{width:12px;height:12px}
+  /* 「クリック/ドラッグ/ホイール」是鼠标操作说明，手机上不适用，字放大后还会盖住底部节点 → 手机不显示 */
+  .maphint{display:none}}
+/* 手机（≤480px）：子标签 4 个排成 2×2，全部看得见、每格 ≥ 48px 高（3 个时最后一个占满一行） */
+@media (max-width:480px){
+  .modebar{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--rule);overflow:visible;align-self:stretch;justify-self:stretch}
+  .mbtn{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:0 8px;white-space:normal;background:var(--m-surface)}
+  .mbtn+.mbtn{border-left:0}
+  .mbtn[aria-pressed="true"]{background:var(--rule)}
+  .mbtn:last-child:nth-child(odd){grid-column:1/-1}
+}
+/* ==== /BH:maps ==== */
 `;
 function clampLeads(root) {
   root.querySelectorAll('.lead').forEach((lead) => {
@@ -23627,33 +23659,69 @@ function foldLegend(root) {
     });
   });
 }
-/* 手机全景マップ的默认缩放：各科的 fitView 都把节点范围放进 1480×800 的画布正中，
-   手机上整张画布只有 ~360px 宽，节点字只剩 3px。这里不动各科的 JS，只在外面改 <svg> 的 viewBox：
-   以画布中心（= fitView 对准的那一簇的中心）为中心放大到节点字 ≥ 11.5px。
+/* 全景マップ的默认显示范围（电脑・手机共用）：各科的 fitView 都把节点范围放进 1480×800 的画布正中，
+   手机上节点字只剩 3px、电脑上也只有 5–6px。这里不动各科的 JS，只在外面改 <svg> 的 viewBox：
+   放大到节点字约 12px（手机 11.5px），对准当前主题的根节点（主幹 = 第一个节点；其他主题 = 和主题同名的节点）。
+   手机：根节点上边留 24px；电脑：根节点上下居中。水平都以根节点为中心，但不把画面移到图外的空白处（留 24px）。
+   点了节点・「図で見る」等（各科自己 centerOn 到某个节点）→ 以那个节点为中心放大。
    各科的拖动・缩放・centerOn 都用 getScreenCTM 换算，所以 viewBox 变了照样正确。
    「全体表示」按钮 = 回到整张画布（总览）；「詳細」模式自己管 viewBox，这里不插手。 */
 const MZ_FULL = '0 0 1480 800';
 function mapZoom(M, root) {
   const web = root.getElementById('web'), view = root.getElementById('view');
   if (!web || !view || M.mz) return;
-  const st = { mine: null, seen: null, k: 0, overview: false };
+  const st = { mine: null, seen: null, k: 0, overview: false, why: 'root', trunk: null };
   const tf = () => view.getAttribute('transform') || '';
   const owned = () => { const v = web.getAttribute('viewBox'); return v === MZ_FULL || (st.mine && v === st.mine); };
   const setVB = (v) => { if (web.getAttribute('viewBox') !== v) web.setAttribute('viewBox', v); st.mine = v; };
-  // 画布中心（fitView 对准的地方；centerOn 也把节点放在这里）最近的那个节点 → 以它为中心放大，不会落在空白的连线上
-  const near = () => {
+  // 每个显示中的节点在画布坐标（1480×800）里的方框（和当前 viewBox 无关）
+  const boxes = () => {
     const ctm = web.getScreenCTM();
-    if (!ctm) return null;
-    const inv = ctm.inverse(), p = web.createSVGPoint();
-    let best = null, bd = Infinity;
-    web.querySelectorAll('#nodes > g').forEach((g) => {
+    if (!ctm) return [];
+    const inv = ctm.inverse(), p = web.createSVGPoint(), out = [];
+    web.querySelectorAll('#nodes > g').forEach((g, i) => {
       const r = g.getBoundingClientRect();
       if (!r.width || !r.height) return;
-      p.x = r.left + r.width / 2; p.y = r.top + r.height / 2;
-      const q = p.matrixTransform(inv), d = (q.x - 740) ** 2 + (q.y - 400) ** 2;
-      if (d < bd) { bd = d; best = { x: q.x, y: q.y }; }
+      p.x = r.left; p.y = r.top; const a = p.matrixTransform(inv);
+      p.x = r.right; p.y = r.bottom; const b = p.matrixTransform(inv);
+      out.push({ g, i, x0: a.x, y0: a.y, x1: b.x, y1: b.y });
     });
+    return out;
+  };
+  const norm = (s) => String(s || '').replace(/[（(][^）)]*[）)]/g, '').replace(/[\s・·]/g, '');
+  const label = (g) => { const t = g.querySelector('.lbl-ja') || g.querySelector('text'); return t ? t.textContent : ''; };
+  // 当前主题的根节点：主幹（第一个主题按钮）= 第一个节点（8 科都是整张图的起点）；
+  // 其他主题 = 和主题同名的节点 → 没有就用这个主题自己的第一个节点
+  const rootOf = (bs) => {
+    if (!bs.length) return null;
+    const pills = [...root.querySelectorAll('#pills button.pill:not(.grp)')];
+    const cur = pills.find((p) => p.getAttribute('aria-pressed') === 'true');
+    if (!cur || cur === pills[0]) { st.trunk = new Set(bs.map((b) => b.i)); return bs[0]; }
+    const pn = norm(cur.textContent);
+    const hit = pn.length >= 2 && bs.find((b) => { const ln = norm(label(b.g)); return ln.length >= 2 && (ln.startsWith(pn) || pn.startsWith(ln)); });
+    return hit || (st.trunk && bs.find((b) => !st.trunk.has(b.i))) || bs[0];
+  };
+  // 画布中心（各科 centerOn 把节点放在这里）最近的那个节点
+  const near = (bs) => {
+    let best = null, bd = Infinity;
+    bs.forEach((b) => { const d = ((b.x0 + b.x1) / 2 - 740) ** 2 + ((b.y0 + b.y1) / 2 - 400) ** 2; if (d < bd) { bd = d; best = b; } });
     return best;
+  };
+  // 显示范围的中心（画布坐标）
+  const aim = (k, why) => {
+    const bs = boxes(), r = why === 'near' ? near(bs) : rootOf(bs);
+    if (!r) return null;
+    const w = web.clientWidth / k, h = web.clientHeight / k, m = 24 / k;
+    const X0 = Math.min(...bs.map((b) => b.x0)) - m, X1 = Math.max(...bs.map((b) => b.x1)) + m;
+    const Y0 = Math.min(...bs.map((b) => b.y0)) - m, Y1 = Math.max(...bs.map((b) => b.y1)) + m;
+    const fit = (c, size, lo, hi) => (hi - lo <= size ? (lo + hi) / 2 : Math.min(Math.max(c, lo + size / 2), hi - size / 2));
+    const x = fit((r.x0 + r.x1) / 2, w, X0, X1);
+    let y;
+    if (why !== 'near' && MAP_MQ_PHONE.matches) {
+      y = r.y0 - m + h / 2; // 根节点上边留 24px
+      if (y + h / 2 > Y1) y = Math.max(Y1 - h / 2, r.y1 + m - h / 2); // 下面没有节点了就往上让，根节点仍在画面里
+    } else y = fit((r.y0 + r.y1) / 2, h, Y0, Y1);
+    return { x, y };
   };
   const place = (k, c) => {
     const W = web.clientWidth, H = web.clientHeight;
@@ -23668,35 +23736,101 @@ function mapZoom(M, root) {
   };
   const apply = () => {
     if (!owned()) return;
-    if (!MAP_MQ_PHONE.matches || st.overview) { setVB(MZ_FULL); st.k = 0; st.seen = tf(); return; }
+    const why = st.why; st.why = 'root';
+    if (st.overview) { setVB(MZ_FULL); st.k = 0; st.seen = tf(); return; }
     const W = web.clientWidth, H = web.clientHeight;
     if (!W || !H) return; // 地图没显示，下次再说
     const m = /scale\(([-\d.e]+)/.exec(tf()), s = m ? +m[1] || 1 : 1;
     const lbl = web.querySelector('#nodes text');
     const fs = (lbl && parseFloat(getComputedStyle(lbl).fontSize)) || 13.5;
     const kF = Math.min(W / 1480, H / 800);
-    const k = Math.min(Math.max(kF, 11.5 / (fs * s)), kF * 5);
-    if (place(k, near())) st.seen = tf();
+    const k = Math.min(Math.max(kF, (MAP_MQ_PHONE.matches ? 11.5 : 12) / (fs * s)), kF * 5);
+    if (place(k, aim(k, why))) st.seen = tf();
   };
   const sync = () => { if (tf() !== st.seen) apply(); };
   root.addEventListener('click', (e) => {
     const b = e.target.closest && e.target.closest('button');
     if (!b) return;
     if (b.id === 'btnIn' || b.id === 'btnOut') { requestAnimationFrame(() => { st.seen = tf(); }); return; }
-    if (b.id === 'btnFit') { st.overview = MAP_MQ_PHONE.matches; requestAnimationFrame(apply); return; }
+    if (b.id === 'btnFit') { st.overview = true; requestAnimationFrame(apply); return; }
     st.overview = false;
-    requestAnimationFrame(() => requestAnimationFrame(sync));
+    // 换主题・子标签・子類 → 对准根节点；点节点、「図で見る」等 → 对准各科 centerOn 的那个节点
+    st.why = b.closest('#pills, .modebar, .subbar') ? 'root' : 'near';
+    requestAnimationFrame(() => requestAnimationFrame(() => { sync(); st.why = 'root'; }));
   });
   // 拖动画布 / 滚轮缩放：是用户自己调的，不要再改回去
   web.addEventListener('wheel', () => requestAnimationFrame(() => { st.seen = tf(); }), { passive: true });
   window.addEventListener('pointerup', () => { if (st.seen !== null) st.seen = tf(); }, { passive: true });
   if (window.ResizeObserver) new ResizeObserver(() => {
     if (!owned()) return;
-    if (!MAP_MQ_PHONE.matches) { setVB(MZ_FULL); st.k = 0; return; }
     if (st.k) place(st.k); else if (tf() !== st.seen) apply();
   }).observe(web);
   mqWatch(MAP_MQ_PHONE, () => { st.seen = null; apply(); });
   M.mz = { sync: () => requestAnimationFrame(sync), apply };
+}
+/* BH:maps r3 —— 横滑条（子标签・主题 chip・子類・動く図解目录・科目切换）：渲染/切换后把选中项滚到中间。
+   位置 = el.offsetLeft - (strip.clientWidth - el.offsetWidth) / 2；chip 包在 .pgrp 里，offsetLeft 不一定以横滑条为基准，
+   所以用两者的屏幕位置差算出同一个 offsetLeft。不用 scrollIntoView（它会连整页一起滚）。 */
+const STRIP_SEL = '.modebar,#pills,.subbar,#alist,.grp-row';
+const STRIP_PICK = '[aria-pressed="true"]:not(.grp),[aria-current="true"],.on,.sel';
+function stripCenter(strip, smooth) {
+  if (!strip || strip.scrollWidth <= strip.clientWidth + 1) return;
+  const el = [...strip.querySelectorAll(STRIP_PICK)].find((e) => e.offsetWidth);
+  if (!el) return;
+  const a = strip.getBoundingClientRect(), b = el.getBoundingClientRect();
+  const off = b.left - a.left - strip.clientLeft + strip.scrollLeft;
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  strip.scrollTo({ left: Math.max(0, Math.round(off - (strip.clientWidth - b.width) / 2)), behavior: smooth && !reduce ? 'smooth' : 'auto' });
+}
+function stripWatch(root) {
+  const want = new Map(), seen = new WeakMap();
+  let raf = 0;
+  const queue = (s, smooth) => {
+    if (!s) return;
+    want.set(s, want.get(s) || smooth);
+    if (!raf) raf = requestAnimationFrame(() => { raf = 0; want.forEach((sm, x) => stripCenter(x, sm)); want.clear(); });
+  };
+  // 从隐藏变成显示（换子标签、换科目）时宽度从 0 变成有 → 重新对准
+  const ro = window.ResizeObserver ? new ResizeObserver((es) => es.forEach((e) => {
+    const s = e.target, w = s.clientWidth, was = seen.get(s) || 0;
+    seen.set(s, w);
+    if (w && !was) queue(s, false);
+  })) : null;
+  const scan = () => root.querySelectorAll(STRIP_SEL).forEach((s) => { if (!seen.has(s)) { seen.set(s, 0); if (ro) ro.observe(s); } });
+  scan();
+  new MutationObserver((recs) => {
+    let added = false;
+    for (const r of recs) {
+      const t = r.target.nodeType === 1 ? r.target : r.target.parentElement;
+      if (!t) continue;
+      if (r.type === 'childList') { added = true; queue(t.closest(STRIP_SEL), false); }
+      else if (t.matches(STRIP_PICK)) queue(t.closest(STRIP_SEL), true);
+    }
+    if (added) scan();
+  }).observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['aria-pressed', 'aria-current', 'class'] });
+  root.querySelectorAll(STRIP_SEL).forEach((s) => queue(s, false));
+}
+/* BH:maps r3 —— 子類条的彩色 emoji → 红色两位编号（「すべて」= 红黄蓝三色块），aria-hidden；按钮上的其他文字不动 */
+const BHM_EMOJI = /\p{Extended_Pictographic}️?/gu;
+function subbMarks(root) {
+  const run = (bar) => {
+    const bs = [...bar.querySelectorAll('button')], hasAll = bs.some((b) => b.dataset.s === 'all');
+    bs.forEach((b, i) => {
+      const tw = document.createTreeWalker(b, NodeFilter.SHOW_TEXT), hits = [];
+      for (let n = tw.nextNode(); n; n = tw.nextNode()) if (/\p{Extended_Pictographic}/u.test(n.data)) hits.push(n);
+      hits.forEach((t) => {
+        if (!b.querySelector('.bhn')) {
+          const mk = document.createElement('span');
+          mk.className = 'bhn'; mk.setAttribute('aria-hidden', 'true');
+          if (b.dataset.s === 'all') mk.classList.add('bhn-all'); else mk.textContent = String(hasAll ? i : i + 1).padStart(2, '0');
+          t.before(mk);
+        }
+        const rest = t.data.replace(BHM_EMOJI, '');
+        if (rest.trim()) t.data = rest; else t.remove();
+      });
+    });
+  };
+  root.querySelectorAll('.subbar').forEach((bar) => { run(bar); new MutationObserver(() => run(bar)).observe(bar, { childList: true, subtree: true, characterData: true }); });
 }
 const CHAP_EXTRA_CSS = '.ip-btn-link{background:none;padding:0 2px;min-height:32px;color:var(--seiji);border-radius:10px}.ip-btn-link:hover{text-decoration:underline;text-underline-offset:3px}';
 const BOOK_SHUT = '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M4.2 2.5h9.3v12.8H4.8A1.8 1.8 0 0 1 3 13.5V3.7a1.2 1.2 0 0 1 1.2-1.2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 13.5a1.8 1.8 0 0 1 1.8-1.8h8.7M6.5 5.5h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
