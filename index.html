@@ -1298,6 +1298,303 @@ dialog { border-radius: 0; border: var(--rule-w) solid var(--rule); box-shadow: 
    ·
 */
 /* ==== BH:drill-kokushi-jisshu（ドリル + 国試 + 実習页）==== */
+/* 色义（三页 + 两个做题弹窗统一）：蓝 = 对 / 记住了，红 = 错 / 忘了，黄 = 到期・模糊・注意（只作底色，字永远黑） */
+:root { --bhx-on-blue: #ffffff; --bhx-on-red: #ffffff; --bhx-hair: color-mix(in srgb, var(--rule) 22%, transparent); --bhx-soft-rule: color-mix(in srgb, var(--rule) 40%, transparent); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bhx-on-blue: #0a0a0a; --bhx-on-red: #0a0a0a; } }
+:root[data-theme="dark"] { --bhx-on-blue: #0a0a0a; --bhx-on-red: #0a0a0a; }
+
+/* ---------- 共用：数字、统计栏、进度条、≡ 线阵 ---------- */
+:is(#drillView, #kokushiView, #jisshuView, #dlgDrill, #dlgKk) :is(.map-stat b, .map-stat b small, .dr-big, .dr-big small, .dr-kv b, .kk-kind b, .deck-group .num, .kk-ex span, .dr-count, .dr-sum b, .jw-self .d, .jx-date b, .jw-dayb .d b, .jw-chip small, .jx-time li b, .jw-roles .r span, .kk-cell, .kk-opt .kn) { font-family: var(--font-num); font-style: normal; font-variation-settings: normal; font-variant-numeric: tabular-nums lining-nums; }
+:is(#drillView, #kokushiView, #jisshuView) :is(.map-stat b small, .dr-big small) { font-weight: 700; font-stretch: 100%; }
+:is(#drillView, #kokushiView, #dlgDrill, #dlgKk) :is(.dr-kv b, .kk-kind b, .dr-count) { font-weight: 800; font-stretch: 110%; }
+/* 统计：像参考图 OUTCOMES 那样分栏，栏间一条黑竖线 */
+:is(#drillView, #kokushiView, #jisshuView) .stats { gap: 0; border-top: var(--rule-w) solid var(--rule); }
+:is(#drillView, #kokushiView, #jisshuView) .stats .map-stat { padding: 14px 14px 2px; border-left: 2px solid var(--rule); min-width: 0; }
+:is(#drillView, #kokushiView, #jisshuView) .stats .map-stat:first-child { border-left: 0; padding-left: 0; }
+:is(#drillView, #kokushiView, #jisshuView) .map-stat span { color: var(--ink-secondary); }
+@media (max-width: 560px) {
+  :is(#drillView, #kokushiView, #jisshuView) .stats .map-stat { padding: 12px 10px 2px; }
+  :is(#drillView, #kokushiView, #jisshuView) .stats .map-stat b { font-size: 30px; }
+  #jisshuView .jw-stats .map-stat:nth-child(odd) { border-left: 0; padding-left: 0; }
+  #jisshuView .jw-stats .map-stat:nth-child(n+3) { border-top: 2px solid var(--rule); }
+}
+/* 进度条：黑框 + 实色填充 */
+:is(#drillView, #kokushiView) .ip-bar { height: 10px; border: 2px solid var(--rule); background: var(--surface); }
+:is(#drillView, #kokushiView) .ip-bar-fill { background: var(--bh-blue); }
+:is(#drillView, #kokushiView) .ip-bar-fill.is-gold { background: var(--bh-yellow); }
+#kokushiView .kk-kind .ip-bar { height: 8px; }
+#kokushiView .kk-kind .ip-bar-fill.ng { background: var(--bh-red); opacity: 1; }
+/* 小标题：→ 前缀（参考图 → TITLE-） */
+:is(#drillView, #kokushiView, #jisshuView) :is(.deck-group > span:first-child, .jw-next-h, .jw-grp-h, .jx-self-h) { font-family: var(--font-display); font-stretch: 112%; font-weight: 800; font-size: 14px; letter-spacing: .02em; color: var(--ink); }
+:is(#jisshuView) :is(.jw-next-h, .jw-grp-h)::before, #drillView .deck-group > span:first-child::before { content: "→ "; color: var(--bh-red); }
+/* 大块里的装饰都放在 ::after，文字和按钮一律上浮一层 */
+:is(#drillView, #kokushiView, #jisshuView) .ip-tile > * { position: relative; z-index: 1; }
+:is(#drillView, #kokushiView, #jisshuView) .ip-tile::after { pointer-events: none; z-index: 0; }
+/* ≡ 线阵（参考图右上角的细横线组），三页的「主卡片」右上角都有 */
+#drillView .bento > .span-4::after, #kokushiView .bento > .span-4::after, #jisshuView .jw-final::after {
+  content: ""; position: absolute; right: 28px; top: 34px; width: 64px; height: 33px;
+  background: repeating-linear-gradient(180deg, var(--rule) 0 3px, transparent 3px 10px);
+}
+@media (max-width: 560px) { #drillView .bento > .span-4::after, #kokushiView .bento > .span-4::after, #jisshuView .jw-final::after { right: 20px; top: 30px; width: 44px; } }
+
+/* ================= ドリル ================= */
+#drillView .dr-big { color: var(--bh-blue); }
+/* 「记牢了」：右上一个红圆环 */
+#drillView .bento > .span-2::after { content: ""; position: absolute; right: 26px; top: 30px; width: 58px; height: 58px; border-radius: 50%; border: 6px solid var(--bh-red); box-sizing: border-box; }
+#drillView .dr-split { height: 14px; border: 2px solid var(--rule); background: var(--surface); }
+#drillView .dr-split .m { background: var(--bh-blue); }
+#drillView .dr-split .l { background: repeating-linear-gradient(135deg, var(--bh-blue) 0 2px, transparent 2px 5px); opacity: 1; }
+#drillView .dr-goal-head { font-family: var(--font-display); font-stretch: 105%; font-weight: 800; color: var(--ink); }
+#drillView .dr-goal-head .gold { color: #141414; background: var(--bh-yellow); padding: 0 6px; }
+/* 原子方格：直角；空 = 细框，学习中 = 蓝斜线，记牢 = 实蓝，到期 = 黄底黑框，刚忘 = 红 */
+#drillView .atoms { gap: 3px; }
+#drillView .atoms i { width: 11px; height: 11px; border-radius: 0; border: 1.5px solid var(--bhx-soft-rule); }
+#drillView .atoms i.s-learn { border-color: var(--bh-blue); background: repeating-linear-gradient(135deg, var(--bh-blue) 0 1.5px, transparent 1.5px 4px); }
+#drillView .atoms i.s-master { background: var(--bh-blue); border-color: var(--bh-blue); }
+#drillView .atoms i.s-due { background: var(--bh-yellow); border-color: var(--rule); }
+#drillView .atoms i.s-lap { background: var(--bh-red); border-color: var(--bh-red); }
+#drillView .atom-legend { gap: 8px 20px; color: var(--ink); font-weight: 600; }
+/* 牌组列表 */
+#drillView .deck-group { padding: var(--space-8) 0 10px; border-bottom: var(--rule-w) solid var(--rule); align-items: baseline; }
+#drillView .deck-group:first-child { padding-top: 4px; }
+#drillView .deck-group .num { font-weight: 800; font-size: 13px; color: var(--ink); }
+#drillView .deck { border-bottom: 1px solid var(--bhx-soft-rule); }
+#drillView .deck > summary { padding: 18px 0; }
+#drillView .deck-name { font-weight: 700; }
+#drillView .deck-name::before { width: 8px; height: 8px; border-right: 2.5px solid var(--rule); border-bottom: 2.5px solid var(--rule); }
+#drillView .deck-name .sumi { font-family: var(--font-display); font-weight: 900; font-size: 11px; background: var(--bh-red); color: var(--bhx-on-red); }
+#drillView .deck-meta { color: var(--ink-secondary); }
+#drillView .deck-meta .due { color: #141414; background: var(--bh-yellow); padding: 0 6px; font-weight: 700; white-space: nowrap; }
+#drillView .deck[open] > summary { border-bottom: 2px solid var(--rule); margin-bottom: 12px; }
+#drillView .deck-secs { gap: 8px; }
+#drillView .dsec { background: var(--surface-sunken); border-left: 6px solid var(--rule); padding: 12px 16px; }
+@media (hover: hover) { #drillView .deck > summary:hover .deck-name { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; } }
+/* 怎么拆：编号放进黑方块 */
+:is(#drillView, #jisshuView) .rules li { grid-template-columns: 44px minmax(0, 1fr); gap: 2px 16px; }
+:is(#drillView, #jisshuView) .rules li::before { width: 44px; height: 44px; display: grid; place-items: center; background: var(--rule); color: var(--surface); font-size: 22px; line-height: 1; }
+:is(#drillView, #jisshuView) .rules li:nth-child(1)::before { background: var(--bh-red); color: var(--bhx-on-red); }
+:is(#drillView, #jisshuView) .rules b { font-size: 19px; line-height: 26px; }
+/* 一张大卡 vs 原子卡：红框 / 蓝框，标题是色带 */
+#drillView .ex { background: transparent; border: var(--rule-w) solid var(--rule); padding: 0 0 18px; gap: 12px; }
+#drillView .ex-h { margin: 0; padding: 8px 20px; font-family: var(--font-display); font-stretch: 110%; font-weight: 900; font-size: 14px; letter-spacing: .02em; }
+#drillView .ex.bad .ex-h { background: var(--bh-red); color: var(--bhx-on-red); }
+#drillView .ex.good .ex-h { background: var(--bh-blue); color: var(--bhx-on-blue); }
+#drillView .ex p.q1 { padding: 0 20px; }
+#drillView .ex ol { padding: 0 20px 0 calc(20px + 1.3em); }
+#drillView .ex ol b { color: var(--bh-blue); font-weight: 700; }
+/* 评分说明 + 做完的统计：同一种「上沿色条」盒子 */
+:is(#drillView .grades-note, #dlgDrill .dr-sum, #dlgKk .dr-sum) > div { background: var(--surface-raised); color: var(--ink); border: 2px solid var(--rule); padding-top: 22px; box-shadow: inset 0 10px 0 var(--bhx-c, var(--rule)); }
+:is(#drillView, #dlgDrill, #dlgKk) .gn1 { --bhx-c: var(--bh-red); }
+:is(#drillView, #dlgDrill, #dlgKk) .gn2 { --bhx-c: var(--bh-yellow); }
+:is(#drillView, #dlgDrill, #dlgKk) .gn3 { --bhx-c: var(--bh-blue); }
+#drillView .grades-note b { font-family: var(--font-display); font-weight: 900; font-stretch: 110%; }
+#drillView .split-note { color: var(--ink-secondary); }
+#drillView .manual > summary { font-weight: 700; }
+
+/* ================= 做题弹窗（ドリル + 国試 共用骨架） ================= */
+:is(#dlgDrill, #dlgKk) .focus-top { border-bottom: var(--rule-w) solid var(--rule); }
+:is(#dlgDrill, #dlgKk) .dr-count { font-size: 17px; color: var(--ink); white-space: nowrap; }
+:is(#dlgDrill, #dlgKk) .focus-top > * { white-space: nowrap; }
+:is(#dlgDrill, #dlgKk) .focus-top > .pill:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 560px) {
+  :is(#dlgDrill, #dlgKk) .focus-top { gap: 10px; padding-left: 16px; padding-right: 16px; }
+  :is(#dlgDrill, #dlgKk) .dr-count { font-size: 15px; font-stretch: 100%; }
+  :is(#dlgDrill, #dlgKk) .focus-top .pill { padding-left: 10px; padding-right: 10px; }
+}
+:is(#dlgDrill, #dlgKk) .dr-progress { padding: 16px 22px 0; }
+:is(#dlgDrill, #dlgKk) .dr-progress .ip-bar { height: 8px; border: 2px solid var(--rule); background: var(--surface); }
+:is(#dlgDrill, #dlgKk) .dr-progress .ip-bar-fill { background: var(--bh-blue); }
+:is(#dlgDrill, #dlgKk) .focus-main { overflow-x: clip; }
+:is(#dlgDrill, #dlgKk) kbd { border-radius: 0; border-width: 1.5px; font-family: var(--font-num); font-weight: 700; }
+/* 卡片：黑粗框 + 硬阴影；背后一个红圆从右上探出、一个黄块从左边探出（都在卡片下层） */
+:is(#drPanelRun, #kkPanelRun) { position: relative; }
+:is(#drPanelRun, #kkPanelRun) > * { position: relative; z-index: 1; }
+:is(#drPanelRun, #kkPanelRun)::before { content: ""; position: absolute; z-index: 0; top: 28px; right: -54px; width: 128px; height: 128px; border-radius: 50%; background: var(--bh-red); pointer-events: none; }
+:is(#drPanelRun, #kkPanelRun)::after { content: ""; position: absolute; z-index: 0; top: 150px; left: -42px; width: 84px; height: 120px; background: var(--bh-yellow); border-top: 8px solid var(--rule); pointer-events: none; }
+@media (max-width: 760px) {
+  #drPanelRun::before { width: 76px; height: 76px; top: -40px; right: 10px; }
+  #kkPanelRun::before { display: none; }
+  :is(#drPanelRun, #kkPanelRun)::after { left: -14px; width: 26px; height: 90px; top: 120px; border-top-width: 6px; }
+}
+:is(#dlgDrill, #dlgKk) .dr-card { border: var(--rule-w) solid var(--rule); box-shadow: var(--shadow-float); background: var(--surface-raised); }
+:is(#dlgDrill, #dlgKk) .dr-src { color: var(--bh-blue); font-family: var(--font-display); font-stretch: 105%; font-weight: 800; }
+:is(#dlgDrill, #dlgKk) .dr-tag { border: 2px solid var(--rule); font-family: var(--font-display); font-weight: 800; background: var(--surface); color: var(--ink); }
+:is(#dlgDrill, #dlgKk) .dr-tag.t-new { background: var(--bh-blue); color: var(--bhx-on-blue); }
+:is(#dlgDrill, #dlgKk) .dr-tag.t-lap { background: var(--bh-red); color: var(--bhx-on-red); }
+:is(#dlgDrill, #dlgKk) .dr-tag.t-due { background: var(--bh-yellow); color: #141414; }
+#dlgDrill .dr-q { font-weight: 800; }
+#dlgDrill .dr-q .blank { background: var(--bh-yellow); border-bottom: 3px solid var(--rule); height: .95em; }
+#dlgDrill .dr-ans { border-top: var(--rule-w) solid var(--rule); padding-top: 20px; }
+#dlgDrill .dr-a { color: var(--bh-blue); font-weight: 900; }
+#dlgDrill .dr-z { color: var(--ink-secondary); }
+:is(#dlgDrill, #dlgKk) .dr-hint { color: var(--ink-secondary); background: var(--surface); padding: 0 8px; }
+/* 评分：忘了 = 红，记住了 = 蓝；模糊 = 米白 + 黄色上沿（一排里最多两块实色） */
+#dlgDrill .dr-grades { gap: 12px; }
+#dlgDrill .dr-g { border: 2px solid var(--rule); font-family: var(--font-display); font-stretch: 110%; font-weight: 900; font-size: 19px; min-height: 72px; }
+#dlgDrill .dr-g small { font-family: var(--font-sans); font-weight: 600; font-size: 12px; }
+#dlgDrill .dr-g.g1 { background: var(--bh-red); color: var(--bhx-on-red); }
+#dlgDrill .dr-g.g2 { background: var(--surface-raised); color: var(--ink); box-shadow: inset 0 10px 0 var(--bh-yellow); padding-top: 8px; }
+#dlgDrill .dr-g.g3 { background: var(--bh-blue); color: var(--bhx-on-blue); }
+#dlgDrill .dr-g:hover { filter: none; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  #dlgDrill .dr-g:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--rule); }
+  #dlgDrill .dr-g.g2:hover { box-shadow: inset 0 10px 0 var(--bh-yellow), 4px 4px 0 var(--rule); }
+}
+#dlgDrill .dr-g:active { transform: translate(2px, 2px); box-shadow: none; }
+#dlgDrill .dr-g.g2:active { box-shadow: inset 0 10px 0 var(--bh-yellow); }
+:is(#dlgDrill, #dlgKk) .dr-sum { gap: 10px; }
+:is(#dlgDrill, #dlgKk) .dr-sum b { font-weight: 800; font-stretch: 118%; }
+:is(#dlgDrill, #dlgKk) .dr-sum span, #dlgKk .dr-sum div { font-family: var(--font-display); font-weight: 800; }
+#dlgDrill .dr-more b { color: var(--ink); background: var(--bh-yellow); color: #141414; padding: 0 4px; }
+#dlgDrill .dr-goal-hit { background: var(--bh-yellow); color: #141414; border: 2px solid var(--rule); font-weight: 800; }
+
+/* ================= 国試 ================= */
+/* 错题本：右上一个红色四分之一圆 */
+#kokushiView .bento > .span-2::after { content: ""; position: absolute; right: 0; top: 8px; width: 92px; height: 92px; background: var(--bh-red); border-bottom-left-radius: 100%; }
+#kokushiView #kkWrong { color: var(--ink); }
+#kokushiView .kk-kind span { color: var(--ink); font-weight: 600; }
+/* 选届：黑框方块，选中 = 蓝 + 硬阴影 */
+#kokushiView .kk-exams { padding: 4px 6px 12px 2px; gap: 10px; }
+#kokushiView .kk-ex { border: 2px solid var(--rule); background: var(--surface-raised); color: var(--ink); min-height: 56px; }
+#kokushiView .kk-ex b { font-family: var(--font-display); font-stretch: 108%; font-weight: 900; }
+#kokushiView .kk-ex span { font-weight: 600; }
+#kokushiView .kk-ex[aria-pressed="true"] { background: var(--bh-blue); border-color: var(--rule); color: var(--bhx-on-blue); box-shadow: 4px 4px 0 var(--rule); }
+#kokushiView .kk-ex[aria-pressed="true"] span { color: var(--bhx-on-blue); opacity: 1; }
+@media (hover: hover) { #kokushiView .kk-ex:not([aria-pressed="true"]):hover { background: var(--bh-yellow); color: #141414; } #kokushiView .kk-ex:not([aria-pressed="true"]):hover span { color: #141414; } }
+#kokushiView .kk-pick-row legend { font-family: var(--font-display); font-stretch: 110%; font-weight: 800; font-size: 13px; color: var(--ink); margin-bottom: 6px; }
+/* 状态行：每段不断行 */
+#kokushiView .kk-grid-head { border-top: var(--rule-w) solid var(--rule); padding-top: 12px; color: var(--ink); font-family: var(--font-display); font-stretch: 105%; font-weight: 800; align-items: center; }
+#kokushiView .kk-gt { white-space: nowrap; }
+#kokushiView .kk-legend { font-weight: 700; }
+#kokushiView .kk-legend i { width: 12px; height: 12px; border-radius: 0; border: 2px solid var(--bhx-soft-rule); box-sizing: border-box; }
+#kokushiView .kk-legend i.k-ok { background: var(--bh-blue); border-color: var(--bh-blue); }
+#kokushiView .kk-legend i.k-ng { background: var(--bh-red); border-color: var(--bh-red); }
+/* 题号格 */
+#kokushiView .kk-grid { gap: 6px; }
+#kokushiView .kk-cell { min-height: 42px; border: 2px solid var(--bhx-soft-rule); background: var(--surface-raised); color: var(--ink); font-weight: 800; font-stretch: 110%; }
+#kokushiView .kk-cell:hover { border-color: var(--rule); background: var(--bh-yellow); color: #141414; }
+#kokushiView .kk-cell.k-ok { background: var(--bh-blue); border-color: var(--bh-blue); color: var(--bhx-on-blue); }
+#kokushiView .kk-cell.k-ng { background: var(--bh-red); border-color: var(--bh-red); color: var(--bhx-on-red); }
+#kokushiView .kk-cell:is(.k-ok, .k-ng):hover { border-color: var(--rule); }
+#kokushiView .kk-cell.k-ex::after { right: 0; top: 0; width: 0; height: 0; border-radius: 0; background: none; border-style: solid; border-width: 0 12px 12px 0; border-color: transparent var(--bh-yellow) transparent transparent; }
+@media (max-width: 560px) { #kokushiView .kk-cell { min-height: 44px; } }
+
+/* 国試做题 */
+#dlgKk .kk-case { background: var(--surface-sunken); border-left: 6px solid var(--bh-blue); }
+#dlgKk .kk-case b { color: var(--ink); font-family: var(--font-display); font-weight: 800; }
+#dlgKk .kk-q { font-weight: 700; }
+#dlgKk .kk-fig { border: 2px solid var(--rule); background: #ffffff; }
+#dlgKk .kk-opts { gap: 10px; }
+#dlgKk .kk-opt { border: 2px solid var(--rule); background: var(--surface-raised); color: var(--ink); min-height: 52px; padding: 8px 14px 8px 8px; }
+#dlgKk .kk-opt .kn { width: 34px; height: 34px; border-radius: 0; background: var(--rule); color: var(--surface); font-weight: 800; font-size: 16px; }
+@media (hover: hover) { #dlgKk .kk-opt:hover:not(:disabled) { border-color: var(--rule); background: var(--bh-yellow); color: #141414; } #dlgKk .kk-opt:hover:not(:disabled) .kn { background: #141414; color: #ffffff; } }
+#dlgKk .kk-opt[aria-pressed="true"] { border-color: var(--bh-blue); background: var(--seiji-soft); box-shadow: inset 0 0 0 2px var(--bh-blue); color: var(--ink); }
+#dlgKk .kk-opt[aria-pressed="true"] .kn { background: var(--bh-blue); color: var(--bhx-on-blue); }
+#dlgKk .kk-opt.is-right, #dlgKk .kk-opt.is-right[aria-pressed="true"] { background: var(--bh-blue); border-color: var(--rule); color: var(--bhx-on-blue); box-shadow: 4px 4px 0 var(--rule); }
+#dlgKk .kk-opt.is-right .kn { background: var(--bhx-on-blue); color: var(--bh-blue); }
+#dlgKk .kk-opt.is-wrong, #dlgKk .kk-opt.is-wrong[aria-pressed="true"] { background: var(--bh-red); border-color: var(--rule); color: var(--bhx-on-red); box-shadow: none; }
+#dlgKk .kk-opt.is-wrong .kn { background: var(--bhx-on-red); color: var(--bh-red); }
+#dlgKk .kk-res { border: 2px solid var(--rule); font-family: var(--font-display); font-stretch: 105%; font-weight: 800; }
+#dlgKk .kk-res small { font-family: var(--font-sans); font-weight: 600; }
+#dlgKk .kk-res.ok { background: var(--bh-blue); color: var(--bhx-on-blue); }
+#dlgKk .kk-res.ng { background: var(--bh-red); color: var(--bhx-on-red); }
+#dlgKk .kk-res.ex { background: var(--bh-yellow); color: #141414; }
+
+/* ================= 実習 ================= */
+#jisshuView .jw-roles .r { font-family: var(--font-display-ja); font-weight: 800; }
+#jisshuView .jw-roles .r span { font-weight: 800; color: var(--ink-secondary); }
+#jisshuView .jw-roles li { border-bottom-color: var(--bhx-soft-rule); }
+#jisshuView .jw-roles .pt b { background: var(--bh-blue); color: var(--bhx-on-blue); }
+/* 自己的成长：左边一条蓝粗线 */
+#jisshuView .jx-self { background: var(--surface-sunken); border: 2px solid var(--rule); box-shadow: inset 8px 0 0 var(--bh-blue); padding-left: 28px; }
+:is(#jisshuView) :is(.jw-self b, .jx-self p b) { border-radius: 0; font-family: var(--font-display); font-weight: 800; }
+:is(#jisshuView) :is(.jw-self, .jx-self) .ok { background: var(--bh-blue); color: var(--bhx-on-blue); }
+:is(#jisshuView) :is(.jw-self, .jx-self) .ng { background: var(--bh-red); color: var(--bhx-on-red); }
+:is(#jisshuView) :is(.jw-self, .jx-self) .nx { background: var(--bh-yellow); color: #141414; }
+#jisshuView :is(.jw-next, .jw-review, .jw-did) { border-top: var(--rule-w) solid var(--rule); }
+#jisshuView .jw-self li, #jisshuView .jw-rv li { border-bottom-color: var(--bhx-soft-rule); }
+#jisshuView .jw-self .d { font-weight: 800; font-stretch: 112%; }
+#jisshuView .jw-rv .t { font-weight: 700; }
+
+/* 时间轴（参考图 TIMELINE）：黑粗线 + 红点 + 竖短线 → 日卡 */
+#jisshuView .jw-days { position: relative; padding-top: 36px; gap: 0 14px; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+#jisshuView .jw-days::before { content: ""; position: absolute; left: 0; right: 0; top: 12px; height: var(--rule-w); background: var(--rule); }
+#jisshuView .jw-days li { position: relative; }
+#jisshuView .jw-days li::before { content: ""; position: absolute; top: -32px; left: 16px; width: 18px; height: 18px; border-radius: 50%; background: var(--bh-red); }
+#jisshuView .jw-days li::after { content: ""; position: absolute; top: -14px; left: 23.5px; width: 3px; height: 14px; background: var(--rule); }
+#jisshuView .jw-dayb { background: var(--surface-raised); border: 2px solid var(--rule); padding: 14px 16px 16px; }
+#jisshuView .jw-dayb .d { color: var(--ink); font-weight: 700; }
+#jisshuView .jw-dayb .d b { font-weight: 800; font-stretch: 112%; }
+#jisshuView .jw-dayb .t { font-weight: 800; }
+#jisshuView .jw-dayb:hover { background: var(--bh-yellow); }
+#jisshuView .jw-dayb:hover :is(.d, .d b, .t, .m) { color: #141414; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  #jisshuView .jw-dayb { transition: background-color .2s var(--ip-ease), transform .2s var(--ip-ease), box-shadow .2s var(--ip-ease); }
+  #jisshuView .jw-dayb:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--rule); }
+}
+@media (max-width: 960px) {
+  #jisshuView .jw-days { grid-template-columns: minmax(0, 1fr); padding: 0 0 0 32px; gap: 10px; }
+  #jisshuView .jw-days::before { left: 8px; right: auto; top: 0; bottom: 0; width: var(--rule-w); height: auto; }
+  #jisshuView .jw-days li::before { top: calc(50% - 9px); left: -32px; }
+  #jisshuView .jw-days li::after { top: calc(50% - 1.5px); left: -14px; width: 14px; height: 3px; }
+  #jisshuView .jw-dayb { grid-template-columns: auto minmax(0, 1fr); column-gap: 14px; align-items: baseline; }
+  #jisshuView .jw-dayb .d { grid-row: span 2; }
+}
+/* 职种图：黑线、米白圆、利用者黄圆 */
+#jisshuView .jw-teamfig .mdl .ln { stroke: var(--rule); stroke-opacity: .55; stroke-width: 1.5; }
+#jisshuView .jw-teamfig .mdl .nd { fill: var(--surface-raised); stroke: var(--rule); stroke-width: 2.5; }
+#jisshuView .jw-teamfig .mdl .pt { fill: var(--bh-yellow); stroke: var(--rule); stroke-width: 2.5; }
+#jisshuView .jw-teamfig .mdl .pt + text { fill: #141414; font-weight: 800; }
+#jisshuView .jw-teamfig .mdl text { font-weight: 700; }
+/* 症例 chip */
+#jisshuView .jw-chips { gap: 8px; }
+#jisshuView .jw-chip { border: 2px solid var(--bhx-soft-rule); background: var(--surface-raised); min-height: 44px; align-items: center; }
+#jisshuView .jw-chip.k-tool { background: var(--surface-sunken); border-color: var(--bhx-soft-rule); }
+#jisshuView .jw-chip small { font-weight: 700; }
+#jisshuView .jw-chip:hover { border-color: var(--rule); background: var(--bh-yellow); color: #141414; }
+#jisshuView .jw-chip:hover small { color: #141414; }
+
+/* 每天的笔记 */
+#jisshuView .jx-seg { background: transparent; border: 2px solid var(--rule); padding: 0; gap: 0; row-gap: 0; }
+#jisshuView .jx-dayb { min-height: 44px; color: var(--ink); font-family: var(--font-num); font-weight: 700; }
+#jisshuView .jx-dayb:hover { background: var(--bh-yellow); color: #141414; }
+#jisshuView .jx-dayb[aria-pressed="true"] { background: var(--rule); color: var(--surface); }
+#jisshuView .jx-daybar { background: transparent; color: var(--ink); border-top: 8px solid var(--rule); border-bottom: 2px solid var(--rule); padding: 12px 0; }
+#jisshuView .jx-date b { background: var(--bh-yellow); color: #141414; padding: 0 8px; font-weight: 800; font-stretch: 112%; font-size: 22px; }
+#jisshuView .jx-daytxt { color: var(--ink-secondary); }
+#jisshuView .jx-time { background: var(--surface-raised); border: 2px solid var(--rule); }
+#jisshuView .jx-time-h { font-family: var(--font-display); font-style: normal; font-stretch: 115%; font-weight: 900; color: var(--ink); letter-spacing: .04em; }
+#jisshuView .jx-time-h::before { content: ""; display: inline-block; width: .65em; height: .65em; margin-right: .45em; border-radius: 50%; background: var(--bh-red); }
+#jisshuView .jx-case { border: 2px solid var(--rule); background: var(--surface-raised); }
+#jisshuView .jx-head h2 { font-weight: 800; }
+#jisshuView .jx-id { background: var(--bh-blue); color: var(--bhx-on-blue); font-style: normal; font-weight: 800; font-stretch: 110%; }
+#jisshuView .jx-kind { border-radius: 0; border: 2px solid var(--rule); font-family: var(--font-display); font-weight: 800; }
+#jisshuView .jx-kind.k-case { background: var(--bh-blue); color: var(--bhx-on-blue); }
+#jisshuView .jx-kind.k-role { background: var(--bh-yellow); color: #141414; }
+#jisshuView .jx-kind.k-visit { background: var(--bh-red); color: var(--bhx-on-red); }
+#jisshuView .jx-kind.k-tool { background: var(--surface); color: var(--ink); }
+#jisshuView .jx-memo { border-left: 6px solid var(--rule); }
+#jisshuView .jx-memo-l { font-family: var(--font-display); font-weight: 900; color: var(--ink); }
+#jisshuView .jx-kw { border-radius: 0; border: 1.5px dashed var(--rule); }
+#jisshuView .jx-sum b, #jisshuView .jx-pts b, #jisshuView .jx-cont b { color: var(--bh-blue); }
+#jisshuView .jx-why { border-top: var(--rule-w) solid var(--rule); }
+#jisshuView .jx-why > div { border-bottom-color: var(--bhx-soft-rule); }
+#jisshuView .jx-risk { background: var(--toki-soft); box-shadow: inset 6px 0 0 var(--bh-red); padding-left: 22px; }
+#jisshuView .jx-ask { background: var(--yamabuki-soft); box-shadow: inset 6px 0 0 var(--bh-yellow); padding-left: 22px; }
+#jisshuView .jx-ask-h { color: var(--ink); }
+#jisshuView .jx-pts { box-shadow: inset 6px 0 0 var(--rule); padding-left: 22px; }
+#jisshuView .jx-learn { border-left: 4px solid var(--bh-blue); }
+#jisshuView .jx-learn-h, #jisshuView .jx-flow-h { color: var(--bh-blue); font-family: var(--font-display); font-weight: 800; }
+#jisshuView :is(.jx-risk-h, .jx-ask-h, .jx-pts-h) { font-family: var(--font-display); font-weight: 800; }
+#jisshuView .jx-flow li { border-bottom-color: var(--bhx-soft-rule); }
+#jisshuView .jx-flow li::before { border: 2px solid var(--rule); color: var(--ink); font-weight: 800; }
+#jisshuView .jx-ladder i { border-radius: 0; background: var(--bh-blue); }
+#jisshuView .jx-tag { border-radius: 0; background: transparent; border: 2px solid var(--bh-blue); color: var(--ink); }
+#jisshuView .jx-acts { border-top: 2px solid var(--rule); }
+#jisshuView .bs-col { border: 2px solid var(--rule); background: var(--surface-raised); box-shadow: inset 0 8px 0 var(--bh-blue); padding-top: 18px; }
+#jisshuView .bs-col + .bs-col { background: var(--surface-raised); box-shadow: inset 0 8px 0 var(--bh-red); }
+#jisshuView .jx-bone { fill: var(--seiji-soft); stroke: var(--bh-blue); }
+#jisshuView .jx-hurt { stroke: var(--bh-red); }
 /* ==== /BH:drill-kokushi-jisshu ==== */
 </style>
 
@@ -23215,7 +23512,7 @@ function renderKk() {
   const kl = KK_KINDS.find((x) => x[0] === kkSel.k)[1], sl = KK_SESS.find((x) => x[0] === kkSel.s)[1];
   const gids = kkIdsOf(kkSel.n, kkSel.k, kkSel.s);
   const gdone = gids.filter((id) => KR[id]).length;
-  $('#kkGridTitle').textContent = `第${kkSel.n}回（${ex[1]}）· ${kl} · ${sl} · 做过 ${gdone} / 50`;
+  $('#kkGridTitle').innerHTML = [`第${kkSel.n}回（${ex[1]}）`, kl, sl, `做过 ${gdone} / 50`].map((t) => `<span class="kk-gt">${esc(t)}</span>`).reduce((a, x, i) => a + (i === 1 ? '· ' : i ? ' · ' : '') + x, '');
   $('#kkGrid').innerHTML = gids.map((id) => {
     const o = kkKindOf(id), r = KR[id];
     const cls = r ? (r[0] ? ' k-ok' : ' k-ng') : '';
