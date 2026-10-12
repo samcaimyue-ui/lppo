@@ -1134,9 +1134,40 @@ dialog.hk-tsheet { overflow-y: auto; }
 .hk-rhythm li:last-child i { background: var(--toki-ink); color: var(--surface-raised); box-shadow: none; font-family: var(--font-seal); font-weight: 400; }
 .hk-rhythm b { font-size: 14px; line-height: 20px; }
 .hk-rhythm span { font-size: 13px; line-height: 18px; color: var(--ink-secondary); }
-.kk-empty { font-size: 13px; line-height: 20px; color: var(--ink-secondary); margin-top: var(--space-3); }
 /* 统计数字统一：分母用无衬线小字 */
 .map-stat b small, .dr-big small { font-family: var(--font-sans); font-style: normal; }
+/* ---- 品质打磨 r3 ---- */
+/* 首页三环中央的「歩」印：没合上=虚线，合上 1–2 个=青磁，三个全合上=朱印盖下 */
+.rings-svg .seal rect { fill: none; stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 3 3; transition: fill .4s var(--ip-ease), stroke .4s var(--ip-ease); }
+.rings-svg .seal text { font-family: var(--font-seal); font-size: 24px; fill: var(--ink-secondary); text-anchor: middle; dominant-baseline: central; transition: fill .4s var(--ip-ease); }
+.rings-svg .seal.s-1 rect, .rings-svg .seal.s-2 rect { stroke: var(--seiji); stroke-dasharray: none; }
+.rings-svg .seal.s-1 text, .rings-svg .seal.s-2 text { fill: var(--seiji); }
+.rings-svg .seal.s-3 rect { fill: var(--toki-ink); stroke: var(--toki-ink); stroke-dasharray: none; }
+.rings-svg .seal.s-3 text { fill: var(--surface-raised); }
+.rings-svg .seal { transform-box: fill-box; transform-origin: center; }
+.rings-svg .seal.seal-new { animation: stamp-in .7s var(--ip-ease) both; }
+@media (prefers-reduced-motion: reduce) { .rings-svg .seal.seal-new { animation: none; } .rings-svg .seal rect, .rings-svg .seal text { transition: none; } }
+/* 小统计数字统一用无衬线；只有卡片主角大数字用衬线 */
+.kk-kind b, .dr-kv b, .map-strip .ms b { font-family: var(--font-sans); font-weight: 700; font-variant-numeric: tabular-nums lining-nums; }
+/* 横滑条：右侧只轻渐隐，让下一张露出来 */
+.kk-exams.fade-r, .grp-row.fade-r { --fr0: 0px; --fr: 24px; }
+.nav .tabs.fade-l { --fl0: 14px; --fl: 40px; }
+.nav .tabs.fade-r { --fr0: 14px; --fr: 40px; }
+.hk-rhythm li:last-child i svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.hk-rhythm li:last-child i { background: var(--seiji); color: var(--on-seiji); box-shadow: none; }
+.hk-rhythm { margin-top: var(--space-4); }
+@media (max-width: 560px) {
+  #kkKindSeg { display: flex; width: 100%; box-sizing: border-box; }
+  #kkKindSeg .chip { flex: 1 1 0; min-width: 0; }
+  #kkKindSeg .chip span { white-space: normal; justify-content: center; text-align: center; padding: 4px 6px; min-height: 44px; line-height: 1.25; width: 100%; box-sizing: border-box; }
+  #kkKindSeg .chip span { flex-direction: column; gap: 1px; }
+  #kkKindSeg .chip span small { font-size: 12px; opacity: .8; white-space: nowrap; }
+  .kk-ex { min-width: 84px; padding: 10px 12px; }
+  .map-strip { padding: 10px 14px; gap: 4px 14px; font-size: 14px; }
+  .map-strip .ms:has(#msQuiz) { display: none; }
+  .grp-head h2 { display: none; }
+}
+
 .lv-badge { font-family: var(--font-sans); font-weight: 700; letter-spacing: 0; font-variant-numeric: tabular-nums lining-nums; }
 .grp-btn .gi, .gt-item .gi { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--seiji-soft); color: var(--seiji); font-size: 0; }
 .grp-btn .gi svg, .gt-item .gi svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
@@ -1620,7 +1651,7 @@ dialog.hk-tsheet { overflow-y: auto; }
         <li><i>今</i><b>今天</b><span>画第一张</span></li>
         <li><i>1</i><b>1 天后</b><span>凭记忆重画</span></li>
         <li><i>3</i><b>3 天后</b><span>再画一次</span></li>
-        <li><i>済</i><b>7 天后</b><span>记牢了</span></li>
+        <li><i><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg></i><b>7 天后</b><span>记牢了</span></li>
       </ol>
     </section>
     <section class="ip-tile span-2" aria-labelledby="hkProgTitle">
@@ -1835,8 +1866,7 @@ dialog.hk-tsheet { overflow-y: auto; }
       <p class="ip-eyebrow" id="kkWrongTitle">错题本</p>
       <div class="dr-big" id="kkWrong">0<small>题</small></div>
       <p class="ip-tile-body" id="kkWrongNote">最近一次答错的题都在这里。重做答对了，就会自己移出去。</p>
-      <div class="cta"><button type="button" class="ip-btn ip-btn-secondary" id="kkWrongGo" hidden>重做错题</button></div>
-      <p class="kk-empty" id="kkWrongEmpty">还没有错题，做完一场再来。</p>
+      <div class="cta"><button type="button" class="ip-btn ip-btn-secondary" id="kkWrongGo" hidden>重做错题</button><button type="button" class="ip-btn ip-btn-secondary" id="kkWrongEmpty">去做一场 →</button></div>
     </section>
     <section class="ip-tile span-6" aria-labelledby="kkPickTitle">
       <p class="ip-eyebrow">选题</p>
@@ -20605,6 +20635,10 @@ function buildRings() {
     a.style.stroke = k.color; a.style.color = k.color; a.style.opacity = 0;
     svg.appendChild(t); svg.appendChild(a);
   });
+  const g = document.createElementNS(SVGNS, 'g');
+  g.setAttribute('class', 'seal s-0'); g.id = 'ringSeal';
+  g.innerHTML = `<rect x="${c - 19}" y="${c - 19}" width="38" height="38" rx="7" transform="rotate(-6 ${c} ${c})"/><text x="${c}" y="${c + 1}" transform="rotate(-6 ${c} ${c})">歩</text>`;
+  svg.appendChild(g);
 }
 function ringVals() {
   const d = DAYS[today()] || freshDay(today());
@@ -20621,6 +20655,12 @@ function renderRings() {
     if (flashRings.includes(k.key)) { a.classList.remove('ring-flash'); void a.getBBox(); a.classList.add('ring-flash'); }
   });
   flashRings = [];
+  const seal = $('#ringSeal'), closed = RINGS.filter((k) => d.rings[k.key]).length;
+  if (seal) {
+    const was = seal.dataset.n;
+    seal.setAttribute('class', 'seal s-' + closed + (was !== undefined && +was < 3 && closed === 3 ? ' seal-new' : ''));
+    seal.dataset.n = closed;
+  }
   $('#ringsLegend').innerHTML = RINGS.map((k) => {
     const x = v[k.key];
     return `<li><span class="ip-dot" style="background:${k.color}"></span><span class="ip-l-name">${k.name}</span><span class="ip-l-val">${fmt(x.value)}<small>/ ${fmt(x.goal)} ${k.unit}</small>${d.rings[k.key] ? `<span class="ip-l-done" style="color:${k.ink}">已合上</span>` : ''}</span></li>`;
@@ -21813,7 +21853,7 @@ const SRC_HK = [
   ['How People Learn 第 2 章：专家的知识围绕核心概念组织', 'https://www.nationalacademies.org/read/9853/chapter/5']
 ];
 // 品质打磨 r1：地图里的小字放大、子标签不折行、长说明折叠
-const MAP_POLISH_CSS = '.kind,.eq,.lph,.ctlh,.ctlh span,.ctlh em,.cd,.rel h3{font-size:12px}.zh,.u,summary,.supn,.z,.badge,.lpctx{font-size:12.5px}.kt{font-size:11px}'
+const MAP_POLISH_CSS = '.kind,.eq,.lph,.ctlh,.ctlh span,.ctlh em,.cd,.rel h3{font-size:12px}.kind{letter-spacing:.04em}.card .eq{font-size:13px;line-height:1.6}.zh,.u,summary,.supn,.z,.badge,.lpctx{font-size:12.5px}.kt{font-size:11px}'
   + '.modebar{flex-wrap:nowrap;overflow-x:auto;max-width:100%;scrollbar-width:none}.modebar::-webkit-scrollbar{display:none}.mbtn{white-space:nowrap;flex:none}'
   + '.lead.is-clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}@media (max-width:760px){.lead.is-clamp{-webkit-line-clamp:2}}'
   + '.lead-more{display:inline-flex;align-items:center;gap:4px;margin:2px 0 0 -12px;padding:0 12px;min-height:44px;border:0;background:none;color:var(--m-in);font:600 13px var(--m-sans,inherit);cursor:pointer;border-radius:10px}.lead-more:hover{text-decoration:underline;text-underline-offset:3px}.lead-more[hidden]{display:none}'
@@ -23044,7 +23084,7 @@ function renderKk() {
     const done = ids.filter((id) => id.startsWith(n + '-')).length;
     return `<button type="button" class="kk-ex" data-kk-exam="${n}" aria-pressed="${n === kkSel.n}"><b>第${n}回</b><span>${era} · ${done}/300</span></button>`;
   }).join('');
-  $('#kkKindSeg').innerHTML = KK_KINDS.map(([k, label]) => `<label class="chip"><input type="radio" name="kkKind" value="${k}"${k === kkSel.k ? ' checked' : ''}><span>${esc(label)}</span></label>`).join('');
+  $('#kkKindSeg').innerHTML = KK_KINDS.map(([k, label]) => `<label class="chip"><input type="radio" name="kkKind" value="${k}"${k === kkSel.k ? ' checked' : ''}><span>${esc(label).replace('（', '<small>（') + (label.includes('（') ? '</small>' : '')}</span></label>`).join('');
   $('#kkSessSeg').innerHTML = KK_SESS.map(([s, label]) => `<label class="chip"><input type="radio" name="kkSess" value="${s}"${s === kkSel.s ? ' checked' : ''}><span>${esc(label)}</span></label>`).join('');
   const ex = kkExam(kkSel.n);
   const kl = KK_KINDS.find((x) => x[0] === kkSel.k)[1], sl = KK_SESS.find((x) => x[0] === kkSel.s)[1];
@@ -23214,6 +23254,10 @@ $('#kkGoRand').addEventListener('click', () => {
   const ids = [];
   KK_KINDS.forEach(([k]) => KK_SESS.forEach(([s]) => ids.push(...kkIdsOf(kkSel.n, k, s))));
   kkStart(kkShuffle(ids).slice(0, 10), `第${kkSel.n}回 · 随机 10 题`);
+});
+$('#kkWrongEmpty').addEventListener('click', () => {
+  const pick = document.querySelector('#kokushiView [aria-labelledby="kkPickTitle"]');
+  if (pick) pick.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
 });
 $('#kkWrongGo').addEventListener('click', () => {
   const ids = Object.keys(KR).filter((id) => KR[id][0] === 0).sort();
