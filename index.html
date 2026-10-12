@@ -2148,6 +2148,48 @@ dialog.hk-tsheet .hk-cover { background: var(--surface); -webkit-backdrop-filter
 #jisshuView .jx-bone { fill: var(--seiji-soft); stroke: var(--bh-blue); }
 #jisshuView .jx-hurt { stroke: var(--bh-red); }
 /* ==== /BH:drill-kokushi-jisshu ==== */
+/*
+   ·
+   ·
+*/
+/* ==== BH:system（全站统一规则：放在最后，覆盖各页区块）====
+   选中 = 黑底米字；蓝 = 主操作 / 正确；红 = 错误；黄 = XP・奖励・高亮（只作底色）
+   h1 不带箭头；h2 带「→」和一条红短杠（不是字符，不会被读成破折号）*/
+:root { --sel-bg: var(--ink); --sel-fg: var(--surface); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --surface: #17150f; --surface-raised: #201d17; --surface-sunken: #100e0a; --glass: rgba(23, 21, 15, 0.92); --line: #3d382d;
+  --shadow-float: 6px 6px 0 rgba(239, 230, 211, 0.3); --focus-ring: 0 0 0 2px var(--surface), 0 0 0 5px var(--bh-blue);
+} }
+:root[data-theme="dark"] {
+  --surface: #17150f; --surface-raised: #201d17; --surface-sunken: #100e0a; --glass: rgba(23, 21, 15, 0.92); --line: #3d382d;
+  --shadow-float: 6px 6px 0 rgba(239, 230, 211, 0.3);
+}
+/* 全屏弹窗不要描边（之前左上漏出 3px 黑边） */
+dialog.full { border: 0; box-shadow: none; }
+/* 标题语法 */
+.section-head h2::after { content: ""; display: inline-block; width: .6em; height: .14em; margin-left: .2em; background: var(--bh-red); vertical-align: middle; }
+/* 选中态统一 */
+#kokushiView .kk-ex[aria-pressed="true"] { background: var(--sel-bg); color: var(--sel-fg); border-color: var(--rule); box-shadow: none; }
+#kokushiView .kk-ex[aria-pressed="true"] span { color: var(--sel-fg); opacity: .85; }
+#kokushiView .seg .chip span { background: var(--surface); }
+#kokushiView .seg .chip input:checked + span { background: var(--sel-bg); color: var(--sel-fg); }
+#dlgKk .kk-opt[aria-pressed="true"]:not(.is-right):not(.is-wrong) { border-color: var(--rule); background: var(--surface-raised); box-shadow: inset 0 0 0 3px var(--rule); color: var(--ink); }
+#dlgKk .kk-opt[aria-pressed="true"]:not(.is-right):not(.is-wrong) .kn { background: var(--sel-bg); color: var(--sel-fg); }
+dialog.hk-tsheet .hk-gcard[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--rule); }
+/* 计时状态点：8px 实心红，脉冲也用红 */
+@keyframes bh-live { 0%, 100% { box-shadow: 0 0 0 0 var(--bh-red); } 50% { box-shadow: 0 0 0 5px transparent; } }
+.map-strip .live i, #tsStrip .live i { width: 8px; height: 8px; background: var(--bh-red); }
+.map-strip.is-live .live i { animation-name: bh-live; }
+@media (prefers-reduced-motion: reduce) { .map-strip.is-live .live i { animation: none; } }
+/* 提示框统一：纸色底 + 3px 左线 */
+.jw-final .jx-self { background: var(--surface); box-shadow: none; border: 0; border-left: 3px solid var(--bh-blue); padding-left: 16px; }
+/* 小字下限 */
+.map-stat span, .ip-stat-label, .dr-kv, .ip-l-name, .streak-note, .ip-level-foot { font-size: 13px; }
+/* 国試答题：对/错除了颜色还有 ✓ / ✗（色弱也能分辨） */
+#dlgKk .kk-opt.is-right::after, #dlgKk .kk-opt.is-wrong::after { padding-left: 4px; font-weight: 900; font-size: 20px; line-height: 1; flex: none; }
+#dlgKk .kk-opt.is-right, #dlgKk .kk-opt.is-wrong { grid-template-columns: 34px minmax(0, 1fr) auto; }
+#dlgKk .kk-opt.is-right::after { content: "✓"; }
+#dlgKk .kk-opt.is-wrong::after { content: "✗"; }
 </style>
 <style id="bh-maps">
 /* ================================================================
@@ -2902,7 +2944,7 @@ dialog.hk-tsheet .hk-cover { background: var(--surface); -webkit-backdrop-filter
       <p class="ip-eyebrow" id="kkWrongTitle">错题本</p>
       <div class="dr-big" id="kkWrong">0<small>题</small></div>
       <p class="ip-tile-body" id="kkWrongNote">最近一次答错的题都在这里。重做答对了，就会自己移出去。</p>
-      <div class="cta"><button type="button" class="ip-btn ip-btn-secondary" id="kkWrongGo" hidden>重做错题</button><button type="button" class="ip-btn ip-btn-secondary" id="kkWrongEmpty">去做一场 →</button></div>
+      <div class="cta"><button type="button" class="ip-btn ip-btn-secondary" id="kkWrongGo" hidden>重做错题</button><button type="button" class="ip-btn ip-btn-primary" id="kkWrongEmpty">去做一场 →</button></div>
     </section>
     <section class="ip-tile span-6" aria-labelledby="kkPickTitle">
       <p class="ip-eyebrow">选题</p>
