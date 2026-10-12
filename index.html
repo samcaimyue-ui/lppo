@@ -2,6 +2,7 @@
 <title>Ippo 一歩</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&family=Noto+Serif+SC:wght@500;600;700;900&family=Yuji+Syuku&family=Klee+One:wght@400;600&display=swap">
 <style>
 :root {
@@ -1174,6 +1175,130 @@ dialog.hk-tsheet { overflow-y: auto; }
 .grp-btn[aria-pressed="true"] .gi { background: color-mix(in srgb, var(--on-seiji) 18%, transparent); color: var(--on-seiji); }
 #jisshuView .jx-self p { max-width: 40em; }
 @media (prefers-reduced-motion: reduce) { .nav .tabs { scroll-behavior: auto; } }
+/* ================================================================
+   包豪斯 / 风格派（Bauhaus · De Stijl）—— 地基
+   规则写在 CLAUDE.md「视觉风格」。各页面的样式写在下面各自的 BH 区块里。
+   ================================================================ */
+:root {
+  --bh-red: #d13a26; --bh-yellow: #f2b51c; --bh-blue: #1d52b0; --bh-black: #141414; --bh-cream: #efe6d3;
+  --surface: #efe6d3; --surface-raised: #f7f1e3; --surface-sunken: #e3d8bf; --glass: rgba(239, 230, 211, 0.9); --line: #cbbd9e;
+  --rule: #141414; --rule-w: 3px;
+  --ink: #141414; --ink-secondary: #4d473d;
+  --seiji: #1d52b0; --on-seiji: #ffffff; --seiji-soft: #dae1ef; --celadon: #1d52b0;
+  --yamabuki: #f2b51c; --yamabuki-ink: #7b5600; --on-yamabuki: #141414; --yamabuki-soft: #f6e2a6;
+  --toki: #d13a26; --toki-ink: #b22d1b; --toki-soft: #f4d2c9;
+  --ring-study: var(--bh-blue); --ring-focus: var(--bh-yellow); --ring-recall: var(--bh-red);
+  --shadow-tile: none; --shadow-float: 6px 6px 0 var(--rule); --shadow-glow: 0 0 0 3px var(--bh-yellow);
+  --focus-ring: 0 0 0 2px var(--surface), 0 0 0 5px var(--bh-blue);
+  --font-display: "Archivo", "Zen Kaku Gothic New", "Noto Sans SC", "PingFang SC", sans-serif;
+  --font-display-ja: "Archivo", "Zen Kaku Gothic New", "Noto Sans JP", sans-serif;
+  --font-num: "Archivo", "Inter", sans-serif;
+  --font-sans: "Inter", "Zen Kaku Gothic New", "PingFang SC", "Noto Sans SC", sans-serif;
+  --font-sans-ja: "Inter", "Zen Kaku Gothic New", "Noto Sans JP", sans-serif;
+  --radius-sm: 0px; --radius-md: 0px; --radius-lg: 0px; --radius-full: 0px;
+  --grid-line: rgba(20, 20, 20, 0.07);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bh-red: #ef5a42; --bh-yellow: #f6c33a; --bh-blue: #5c8ff0; --bh-black: #efe6d3; --bh-cream: #121212;
+    --surface: #121212; --surface-raised: #1b1b1b; --surface-sunken: #0a0a0a; --glass: rgba(18, 18, 18, 0.9); --line: #3a3833;
+    --rule: #efe6d3; --ink: #efe6d3; --ink-secondary: #b3ab9b;
+    --seiji: #5c8ff0; --on-seiji: #0a0a0a; --seiji-soft: #17233b; --celadon: #5c8ff0;
+    --yamabuki: #f6c33a; --yamabuki-ink: #f6c33a; --on-yamabuki: #141414; --yamabuki-soft: #3a2e0c;
+    --toki: #ef5a42; --toki-ink: #f37a66; --toki-soft: #3d1711;
+    --shadow-float: 6px 6px 0 #000; --focus-ring: 0 0 0 2px var(--surface), 0 0 0 5px var(--bh-blue);
+    --grid-line: rgba(239, 230, 211, 0.07);
+  }
+}
+:root[data-theme="dark"] {
+  --bh-red: #ef5a42; --bh-yellow: #f6c33a; --bh-blue: #5c8ff0; --bh-black: #efe6d3; --bh-cream: #121212;
+  --surface: #121212; --surface-raised: #1b1b1b; --surface-sunken: #0a0a0a; --glass: rgba(18, 18, 18, 0.9); --line: #3a3833;
+  --rule: #efe6d3; --ink: #efe6d3; --ink-secondary: #b3ab9b;
+  --seiji: #5c8ff0; --on-seiji: #0a0a0a; --seiji-soft: #17233b; --celadon: #5c8ff0;
+  --yamabuki: #f6c33a; --yamabuki-ink: #f6c33a; --on-yamabuki: #141414; --yamabuki-soft: #3a2e0c;
+  --toki: #ef5a42; --toki-ink: #f37a66; --toki-soft: #3d1711;
+  --shadow-float: 6px 6px 0 #000; --focus-ring: 0 0 0 2px var(--surface), 0 0 0 5px var(--bh-blue);
+  --grid-line: rgba(239, 230, 211, 0.07);
+}
+/* 字：标题 = Archivo 加宽特粗；数字不再用斜体衬线 */
+.hero h1, .section-head h2, .ip-tile-title, .dlg-body h2, .lv-title, .draw-line, .chap h3, .rules b, .grp-head h2 { font-family: var(--font-display); font-weight: 900; font-stretch: 112%; letter-spacing: -0.01em; }
+.hero h1 { line-height: 1.08; }
+.brand, .coins, .ip-streak-n, .dr-big, .lv-big, .section-head .count, .rules li::before, .ip-stat-value, .map-stat b, .ip-l-val, .timer-num b { font-family: var(--font-num); font-style: normal; font-stretch: 118%; font-weight: 800; font-variation-settings: normal; }
+.eyebrow, .ip-eyebrow, .chap-eyebrow { font-family: var(--font-display); font-stretch: 115%; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); }
+.eyebrow::before, .ip-eyebrow::before { content: ""; display: inline-block; width: .7em; height: .7em; margin-right: .5em; background: var(--bh-red); border-radius: 50%; vertical-align: -.02em; }
+/* 品牌：IPPO + 红点 */
+.brand { text-transform: uppercase; font-size: 22px; letter-spacing: .02em; font-stretch: 125%; font-weight: 900; }
+.brand::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--bh-red); align-self: center; order: 1; }
+.brand small { order: 2; font-family: var(--font-display); font-stretch: 100%; font-weight: 700; font-size: 14px; color: var(--ink); }
+/* 导航：粗黑底线，选中 = 黑底反白 */
+.nav { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-bottom: var(--rule-w) solid var(--rule); }
+.tabs { background: transparent; padding: 0; gap: 0; }
+.tab { font-weight: 700; color: var(--ink); border-radius: 0; }
+.tab[aria-pressed="true"] { box-shadow: none; }
+.nav .tabs .tab-pill { background: var(--rule); box-shadow: none; border-radius: 0; top: 0; height: 100%; }
+.nav .tabs.has-pill .tab[aria-pressed="true"] { color: var(--surface); }
+.nav .tabs:not(.has-pill) .tab[aria-pressed="true"] { background: var(--rule); color: var(--surface); }
+.pill { border-radius: 0; border: 2px solid var(--rule); background: transparent; font-weight: 800; }
+.pill-gold { background: var(--bh-yellow); color: #141414; border-color: var(--rule); }
+.lv-badge { border-radius: 0; }
+/* 按钮：直角 + 黑框；主按钮蓝，奖励黄 */
+.ip-btn { border-radius: 0; font-weight: 700; border: 2px solid var(--rule); }
+.ip-btn-primary { background: var(--bh-blue); color: #fff; }
+.ip-btn-secondary { background: transparent; color: var(--ink); }
+.ip-btn-secondary:hover:not(:disabled) { background: var(--bh-yellow); color: #141414; filter: none; }
+.ip-btn-reward { background: var(--bh-yellow); color: #141414; }
+.ip-btn-danger { background: var(--bh-red); color: #fff; }
+.ip-btn-link { border: 0; color: var(--ink); font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.ip-btn-link:hover { color: var(--bh-red); }
+.ip-btn:active:not(:disabled) { transform: translate(2px, 2px); }
+/* 卡片：平面米色 + 黑框 + 顶部一条原色粗条（红 → 黄 → 蓝 轮换） */
+.ip-tile { border: 2px solid var(--rule); box-shadow: none; position: relative; }
+.ip-tile::before { content: ""; position: absolute; left: -2px; right: -2px; top: -2px; height: 10px; background: var(--bh-red); }
+.bento > .ip-tile:nth-child(3n+2)::before { background: var(--bh-yellow); }
+.bento > .ip-tile:nth-child(3n)::before { background: var(--bh-blue); }
+.ip-tile { padding-top: calc(var(--space-8) + 6px); }
+.ip-tile-ink { background: var(--bh-blue); color: #fff; border-color: var(--rule); }
+.ip-tile-ink .ip-eyebrow, .ip-tile-ink .ip-tile-body { color: #fff; }
+.ip-tile-sunken { background: var(--surface-sunken); }
+/* 大标题区：右侧几何构成（红圆 + 黄块 + 蓝条 + 黑线），文字永远在上层 */
+.hero { position: relative; isolation: isolate; overflow-x: clip; }
+.hero > * { position: relative; z-index: 1; }
+.hero::before { content: ""; position: absolute; z-index: 0; right: 0; top: 36px; width: min(30vw, 300px); aspect-ratio: 1; border-radius: 50%; background: var(--bh-red); }
+.hero::after { content: ""; position: absolute; z-index: 0; right: min(22vw, 220px); top: 18px; width: min(14vw, 130px); height: min(24vw, 230px); background: var(--bh-yellow); border-right: 8px solid var(--rule); }
+.hero-sm::before { width: min(22vw, 200px); }
+.hero-sm::after { right: min(17vw, 150px); width: min(10vw, 90px); height: min(17vw, 160px); }
+@media (max-width: 860px) {
+  .hero, .hero-sm { padding-top: 104px; }
+  .hero::before, .hero-sm::before { width: 72px; top: 20px; right: 0; }
+  .hero::after, .hero-sm::after { width: 26px; height: 72px; right: 88px; top: 20px; border-right-width: 5px; }
+}
+/* 段落标题：前面一个黑箭头，后面一条横杠（参考图 → PROJECT-） */
+.section-head h2::before { content: "→ "; color: var(--bh-red); }
+.section-head h2::after { content: "–"; }
+/* 进度、圆环、点 */
+.ip-bar, .gt-bar, .ip-ach-bar, .dr-split { border-radius: 0; }
+.ip-bar-fill, .ip-bar-gift { border-radius: 0; }
+dialog { border-radius: 0; border: var(--rule-w) solid var(--rule); box-shadow: var(--shadow-float); }
+.field { border-radius: 0; border: 2px solid var(--rule); background: var(--surface-raised); }
+.chip span, .seg { border-radius: 0; }
+.seg { border: 2px solid var(--rule); padding: 0; }
+.seg .chip input:checked + span, .chip input:checked + span { background: var(--rule); color: var(--surface); }
+.foot-line, .notes-foot { border-color: var(--rule); }
+
+/* ==== BH:today（今日页 + 专注计时 / 御神籤 / 升级 等弹窗）==== */
+/* ==== /BH:today ==== */
+/*
+   ·
+   ·
+*/
+/* ==== BH:hakushi-tashoku（白紙页 + 画白紙弹窗 + 多職種页）==== */
+/* ==== /BH:hakushi-tashoku ==== */
+/*
+   ·
+   ·
+*/
+/* ==== BH:drill-kokushi-jisshu（ドリル + 国試 + 実習页）==== */
+/* ==== /BH:drill-kokushi-jisshu ==== */
 </style>
 
 
