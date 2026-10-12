@@ -2318,20 +2318,40 @@ dialog.hk-tsheet .hk-gcard[aria-pressed="true"] { box-shadow: inset 0 0 0 3px va
   #mapView .grp-btn:hover:not([aria-pressed="true"]) { background: var(--surface-raised); border-color: var(--rule); }
   #mapView .grp-btn:hover:not([aria-pressed="true"]) .gi { background: var(--bh-yellow); color: #141414; }
 }
-#mapView .grp-btn[aria-pressed="true"] { background: var(--bh-blue); border-color: var(--rule); color: var(--on-seiji); z-index: 1; }
+/* 选中 = 黑底米字（全站统一；深色模式自动反过来），黄色图标块保留 */
+#mapView .grp-btn[aria-pressed="true"] { background: var(--ink); border-color: var(--rule); color: var(--surface); z-index: 1; }
 #mapView .grp-btn[aria-pressed="true"] .gi { background: var(--bh-yellow); color: #141414; box-shadow: inset 0 0 0 2px #141414; }
-#mapView .grp-btn[aria-pressed="true"] .gs { color: var(--on-seiji); opacity: .9; }
+#mapView .grp-btn[aria-pressed="true"] .gs { color: var(--surface); opacity: .85; }
+#mapView .grp-btn .gs { font-size: 13px; }
 #mapView .grp-btn:focus-visible { outline: 3px solid var(--bh-yellow); outline-offset: 2px; z-index: 2; }
 
-/* 计时条：黑框 + 左侧黄块，红点 = 正在计时 */
-#mapView .map-strip { background: var(--surface-raised); color: var(--ink); border: 2px solid var(--rule); border-radius: 0; box-shadow: inset 14px 0 0 var(--bh-yellow); padding: 10px 18px 10px 32px; }
+/* 计时条：和多職種页同一种 —— 上下两条黑线、无外框；圆点 = 8px 实心红 */
+#mapView .map-strip { background: transparent; color: var(--ink); border: 0; border-top: var(--rule-w) solid var(--rule); border-bottom: var(--rule-w) solid var(--rule); border-radius: 0; box-shadow: none; padding: 10px 0; }
 #mapView .map-strip .live { font-weight: 700; color: var(--ink); }
-#mapView .map-strip .live i { width: 10px; height: 10px; background: var(--bh-red); }
+#mapView .map-strip .live i { width: 8px; height: 8px; border-radius: 50%; background: var(--bh-red); }
 #mapView .map-strip.is-live .live i { animation-name: bhm-live; }
 @keyframes bhm-live { 0%, 100% { box-shadow: 0 0 0 0 var(--bh-red); } 50% { box-shadow: 0 0 0 5px transparent; } }
 #mapView .map-strip .ms b { font-family: var(--font-num); font-stretch: 118%; font-weight: 800; font-size: 17px; }
+#mapView .map-strip .ip-btn-link { min-height: 44px; }
 @media (prefers-reduced-motion: reduce) { #mapView .map-strip.is-live .live i { animation: none; } #mapView .grp-btn { transition: none; } }
-@media (max-width: 560px) { #mapView .map-strip { padding: 8px 12px 8px 26px; box-shadow: inset 10px 0 0 var(--bh-yellow); } }
+
+/* 手机：首屏留给内容 —— 科目切换变矮，计时条压成一行（约 44px，横滑看完） */
+@media (max-width: 640px) {
+  #mapView .grp-head { margin-top: 12px; }
+  #mapView .grp-row { padding-bottom: 2px; }
+  #mapView .grp-btn { min-height: 56px; padding: 6px 14px 6px 8px; column-gap: 8px; }
+  #mapView .grp-btn .gi { width: 36px; height: 36px; }
+  #mapView .grp-btn .gi svg { width: 22px; height: 22px; }
+  #mapView .map-strip { position: relative; flex-wrap: nowrap; align-items: center; gap: 0 14px; margin-top: 12px; padding: 0; min-height: 44px; font-size: 13.5px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+  #mapView .map-strip::-webkit-scrollbar { display: none; }
+  #mapView .map-strip .live { display: contents; }
+  #mapView .map-strip .live i { order: -1; margin-right: -6px; }
+  /* 「正在计时 · 每满 5 分…」这行字在手机上只留给读屏；红点在闪就表示正在计时 */
+  #mapView .map-strip #msLive { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+  #mapView .map-strip .ms b { font-size: 15px; }
+  /* 「回到今日」贴在右端，长科目名横滑时也一直看得见 */
+  #mapView .map-strip .ip-btn-link { order: 8; margin-left: auto; min-height: 44px; padding: 0 0 0 12px; font-size: 14px; position: sticky; right: 0; z-index: 1; background: var(--surface); box-shadow: -12px 0 10px -6px var(--surface); }
+}
 
 /* 今日页地图卡里的章节小块：直角黑框；读完 = 红色圆印 */
 .chap-row .chap-chip { border-radius: 0; border: 2px solid var(--rule); background: transparent; min-height: 44px; font-weight: 600; }
@@ -22501,7 +22521,7 @@ function ensureMap(M) {
   const css = M.key === 'map' ? def.css : ((window.IppoMap && window.IppoMap.css) || '') + def.css;
   root.innerHTML = '<style>' + css + CHAP_EXTRA_CSS + MAP_POLISH_CSS + '</style>' + def.html;
   ['pointerdown', 'keydown', 'input', 'wheel'].forEach((ev) => root.addEventListener(ev, markActive, { capture: true, passive: true }));
-  try { M.views = def.mount(root, makeBus(M)); clampLeads(root); hfadeAll(root); }
+  try { M.views = def.mount(root, makeBus(M)); clampLeads(root); tagLph(root); groupPills(root); foldLegend(root); mapZoom(M, root); hfadeAll(root); }
   catch (e) { M.views = null; root.innerHTML = '<p style="padding:24px;font-family:sans-serif">地图没能加载：' + esc(e && e.message ? e.message : e) + '</p>'; }
 }
 function curMap() { return MAPS[tab] || null; }
@@ -22581,6 +22601,7 @@ function showTab(t, keepScroll) {
     lastMap = M.key;
     ensureMap(M); markActive();
     if (M.views && M.views.map && M.views.map.fit) { try { M.views.map.fit(); } catch (e) { /* ignore */ } }
+    if (M.mz) M.mz.sync();
   }
   try { localStorage.setItem('ippo.tab', tab); } catch (e) { /* ignore */ }
   centerNavTab();
@@ -23308,7 +23329,7 @@ const MAP_POLISH_CSS = '.kind,.eq,.lph,.ctlh,.ctlh span,.ctlh em,.cd,.rel h3{fon
   /* ==== BH:maps —— 8 个地图内部的包豪斯样式（变量 --bhm-* 在 <style id="bh-maps">）==== */
   + `
 :host{--m-c-mech:var(--bhm-mech);--m-c-tissue:var(--bhm-tissue);--m-c-path:var(--bhm-path);--m-c-comp:var(--bhm-comp);--m-c-imp:var(--bhm-imp);--m-c-tx:var(--bhm-tx);--m-c-dx:var(--bhm-dx);
-  --m-relief:var(--bhm-good);--m-good:var(--bhm-good);--m-cycle:var(--bh-yellow);--m-in:var(--bh-blue);--m-accent:var(--bh-blue);
+  --m-relief:var(--bhm-good);--m-good:var(--bh-blue);--m-cycle:var(--bh-yellow);--m-in:var(--bh-blue);--m-accent:var(--bh-blue);
   /* 中枢神経以下 7 科的节点/图例写的是 --c-*（之前没有定义，分类色一直没显示出来） */
   --c-mech:var(--m-c-mech);--c-tissue:var(--m-c-tissue);--c-path:var(--m-c-path);--c-comp:var(--m-c-comp);--c-imp:var(--m-c-imp);--c-tx:var(--m-c-tx);--c-dx:var(--m-c-dx)}
 *,*::before,*::after{border-radius:0!important}
@@ -23321,7 +23342,6 @@ const MAP_POLISH_CSS = '.kind,.eq,.lph,.ctlh,.ctlh span,.ctlh em,.cd,.rel h3{fon
 .eyebrow{font-family:var(--font-display);font-stretch:115%;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--m-ink)}
 .app .eyebrow::before{content:"";display:inline-block;width:.7em;height:.7em;margin-right:.5em;background:var(--bh-red);border-radius:50%!important;vertical-align:-.02em}
 h1{font-family:var(--font-display);font-weight:900;font-stretch:112%;letter-spacing:-.01em;max-width:calc(100% - 170px)}
-h1::before{content:"→ ";color:var(--bh-red)}
 .app>div:first-child>.lead{max-width:min(60em,calc(100% - 180px))}
 .map-note{border-left:4px solid var(--bh-yellow);padding-left:12px}
 @media (max-width:760px){
@@ -23391,14 +23411,15 @@ button.lbtn,.notebtn{font-weight:700}
 .kab[aria-pressed="true"] small{color:inherit;opacity:.8}
 .bandb[aria-pressed="true"]{outline:3px solid var(--m-ink);outline-offset:0;background:var(--m-surface-2)}
 .kans2 .kab{border-left-width:2px}.kband .kab{border-left-width:14px}
-.kab.kok{background:var(--bhm-good-soft);border-color:var(--m-good)}.kab.kng{background:var(--toki-soft);border-color:var(--m-bad)}
+/* kgBtns 的按钮：被选中/被标出的那一颗（.kok）= 黑底米字，左边的色条（セラバンド的颜色等）保留 */
+.kab.kok{background:var(--rule);border-color:var(--rule);border-left-color:var(--kc,var(--rule));color:var(--surface)}.kab.kok small{color:inherit;opacity:.85}.kab.kng{background:var(--toki-soft);border-color:var(--m-bad)}
 .bandb{border-left:12px solid var(--bc)}
 button.nchip{border-width:2px;background:var(--m-surface)}
 .nbtn[aria-current="true"]{background:var(--rule);border-color:var(--rule);color:var(--surface)}
 .nbtn[aria-current="true"] .cnt,.nbtn[aria-current="true"] .sumi{color:inherit}
 .srcb{border:2px solid var(--rule);background:transparent;color:var(--m-ink)}
 .rel .rc{border-top:2px solid var(--rule);border-right:2px solid var(--rule);border-bottom:2px solid var(--rule)}
-.vd.lv0,.tbl td.lo{background:var(--bhm-good-soft)}
+.vd.lv0,.tbl td.lo{background:var(--seiji-soft)}
 .legend .sw{width:14px;height:14px;border-width:3px}.legend .el{width:22px;border-top-width:3px}
 button:focus-visible,.nbtn:focus-visible{outline:3px solid var(--bh-yellow);outline-offset:2px;box-shadow:0 0 0 5px var(--m-ink)}
 /* 章节达成块 */
@@ -23455,6 +23476,76 @@ svg.web .node.sel>rect{stroke-width:4;filter:drop-shadow(4px 4px 0 var(--m-ink))
   #alist .nbtn{flex:0 0 auto;width:auto;max-width:230px;border:2px solid var(--rule)}
 }
 @media (prefers-reduced-motion:reduce){.ip-btn:active:not(:disabled){transform:none}.mbtn,button.pill,button.tool{transition:none}}
+/* ---- BH:maps r2 —— 选中统一黑底、主按钮蓝、清掉旧绿色、小字放大、手机首屏 ---- */
+/* 选中 = 黑底米字（深色模式自动反过来）：工具开关、子類、分段、chip 全部一样 */
+button.tool[aria-pressed="true"],button.tool#btnCycle[aria-pressed="true"],.subb[aria-pressed="true"],.kst-c.on,.tchip[aria-pressed="true"],.tchip.auto.on{background:var(--rule);border-color:var(--rule);color:var(--surface)}
+button.tool#btnCycle[aria-pressed="true"] .dot{background:var(--bh-yellow);opacity:1}
+.subb[aria-pressed="true"] .sbc,.kst-c.on.got::after{color:var(--surface);opacity:.85}
+.subb{border:2px solid var(--rule);background:var(--m-surface);color:var(--m-ink)}
+.tchip{border:2px solid var(--rule)}
+.vbadge.on circle,.vleg g.on rect{fill:var(--m-ink);stroke:var(--m-ink)}
+.vbadge.on text,.vleg g.on text{fill:var(--m-surface)}
+/* 主按钮：章末「读完了」= 蓝色实心（抽签那颗黄色奖励按钮不变） */
+.chap .ip-btn-reward[data-chap-done]{background:var(--bh-blue);color:var(--on-seiji);border-color:var(--rule)}
+/* 旧绿色残留：讲义标签 = 纸色底 + 3px 左边线（病期类红、手術类蓝、其他黑） */
+.lph{font-size:13px;font-weight:800;color:var(--m-ink);background:var(--m-surface);border:0;box-shadow:inset 3px 0 0 var(--rule);padding:0 8px 0 10px;margin-right:8px;line-height:1.7}
+.lph[data-k="stage"]{box-shadow:inset 3px 0 0 var(--bh-red)}
+.lph[data-k="op"]{box-shadow:inset 3px 0 0 var(--bh-blue)}
+.lpl li::marker,.lsec li::marker{color:var(--m-ink)}
+.ncard li::marker{color:var(--m-ink)}
+details.lp summary{color:var(--bh-blue)}
+.lect h3,.lect h3 a{color:var(--bh-blue)}
+.lect.sup h3{color:var(--m-muted)}
+.tl.tlm{color:var(--bh-blue);background:transparent;box-shadow:inset 0 0 0 2px var(--bh-blue)}
+.nbtn .cnt{color:var(--ink-secondary,var(--m-muted))}
+.nbtn.cov{border:2px solid var(--rule)}
+button.nchip,button.nchip[style]{border:2px solid var(--rule)!important;color:var(--m-ink);background:var(--m-surface);font-size:13px;min-height:36px}
+/* 小字下限：眉标 13 / 副标题 13 / 注释 14 / 讲义要点正文 15（行高 1.7） */
+.card .kind{font-size:13px;letter-spacing:.05em}
+.card .zh,.panel .zh,.anhead .zh,.nhead .zh,.lsec .lh .z,.ncard h3 .z{font-size:13px}
+.card .eq,.kmemo,.map-note{font-size:14px;line-height:1.6}
+.kt{font-size:13px;padding:0 6px}
+.lpl li,.lsec li,details.lp .lsec li,.ncard li{font-size:15px;line-height:1.7}
+.lpctx{font-size:13px}
+.nml,.ngrp,.rel h3,.pills .lab{font-size:13px}
+/* 主题 chip 行：分组名单独起一行，小号粗体 + 左侧 3px 黑线，和可点的 chip 分开 */
+/* （共用 JS 把每个分组名和它后面的 chip 包进 .pgrp：分组名在上一行，chip 在下一行；各组并排，省高度） */
+.pills{align-items:flex-start;gap:10px 22px}
+.pills>.lab,.pills>button.pill{align-self:center}
+.pgrp{display:flex;flex-direction:column;align-items:flex-start;gap:6px;max-width:100%}
+.pgc{display:flex;flex-wrap:wrap;gap:6px}
+.pills .pill.grp{display:block;margin:0;padding:0 0 0 10px;border:0;background:none;box-shadow:inset 3px 0 0 var(--rule);font-family:var(--font-display);font-stretch:110%;font-size:13px;font-weight:800;letter-spacing:.04em;line-height:1.5;color:var(--m-ink);min-height:0;cursor:default}
+/* 图例开关（手机才出现；电脑上图例照常展开） */
+.lgd-tog{display:none}
+/* ---- 手机（≤640px）：首屏 —— 去掉标题旁装饰，导读 1 行 + 「展开说明」同一行，注释收进展开说明 ---- */
+@media (max-width:640px){
+  .app{gap:14px}
+  .app>div:first-child{padding-top:8px;gap:4px;grid-template-columns:minmax(0,1fr) auto;column-gap:10px}
+  .app>div:first-child>*{grid-column:1/-1}
+  .app>div:first-child::before,.app>div:first-child::after{display:none}
+  .eyebrow{font-size:13px}
+  h1{font-size:28px;line-height:1.15;margin:0}
+  .app>div:first-child>.lead{grid-column:1;align-self:center;margin:0}
+  .app>div:first-child>.lead.is-clamp{-webkit-line-clamp:1}
+  .app>div:first-child>.lead-more{grid-column:2;align-self:start;margin:0 -4px 0 0;padding:0 4px;white-space:nowrap}
+  .app>div:first-child:not(.lead-open)>.map-note,.app>div:first-child:not(.lead-open)>.subnote{display:none}
+  .app>div:first-child.lead-open>.lead{grid-column:1/-1}
+  .app>div:first-child.lead-open>.lead-more{grid-column:1/-1;justify-self:end;margin:0}
+  .subbar{margin:0;padding:2px 2px 4px;gap:0}
+  .subb{min-height:44px;padding:0 12px 0 8px;grid-template-rows:auto;grid-template-columns:auto auto auto;align-items:center}
+  .subb+.subb{margin-left:-2px}
+  .subb .sbi{grid-row:auto;font-size:18px;align-self:center}
+  .subb .sbc{font-size:13px}
+  .modebar{margin-top:6px}
+  .pills{gap:6px;align-items:center}
+  .pgrp{flex-direction:row;align-items:center}
+  .pgc{flex-wrap:nowrap}
+  .pgrp>*,.pgc>*{flex:none;white-space:nowrap}
+  .pills .pill.grp{flex:none;display:inline-flex;align-items:center;margin:0 0 0 8px;padding:0 4px 0 9px;min-height:44px}
+  .lgd-tog{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;min-height:44px;padding:0 14px;border:2px solid var(--rule);background:var(--m-surface);color:var(--m-ink);font:800 13px var(--font-display,inherit);letter-spacing:.04em;cursor:pointer}
+  .lgd-tog[aria-expanded="true"]{background:var(--rule);color:var(--surface)}
+  .legend.lgd-fold:not(.is-open){display:none}
+}
 `;
 function clampLeads(root) {
   root.querySelectorAll('.lead').forEach((lead) => {
@@ -23473,18 +23564,135 @@ function clampLeads(root) {
       note.innerHTML = out.map((t) => '<p>' + t.trim() + '</p>').join('');
       note.hidden = !out.length;
     };
+    const head = lead.parentElement;
     const sync = () => {
       lead.classList.toggle('is-clamp', !open);
-      const over = open || lead.scrollHeight > lead.clientHeight + 2;
+      // 手机：※注释和子類说明也收在「展开说明」里，所以有它们时按钮一定要出现
+      const sub = head && head.querySelector('.subnote');
+      const folded = MAP_MQ_PHONE.matches && (!note.hidden || !!(sub && sub.textContent.trim()));
+      const over = open || folded || lead.scrollHeight > lead.clientHeight + 2;
       btn.hidden = !over;
       btn.textContent = open ? '收起说明 ▴' : '展开说明 ▾';
       btn.setAttribute('aria-expanded', String(open));
+      if (head) head.classList.toggle('lead-open', open);
     };
     btn.addEventListener('click', () => { open = !open; sync(); });
     new MutationObserver(() => { split(); requestAnimationFrame(sync); }).observe(lead, { childList: true, characterData: true, subtree: true });
     if (window.ResizeObserver) new ResizeObserver(() => sync()).observe(lead);
+    mqWatch(MAP_MQ_PHONE, sync);
     split(); sync();
   });
+}
+/* BH:maps r2 —— 手机地图的共用小工具（8 科共用，挂在 ensureMap 里） */
+const MAP_MQ_PHONE = window.matchMedia ? matchMedia('(max-width: 640px)') : { matches: false };
+function mqWatch(mq, fn) { try { if (mq.addEventListener) mq.addEventListener('change', fn); else if (mq.addListener) mq.addListener(fn); } catch (e) { /* ignore */ } }
+// 讲义要点的标签：按文字分成「病期」「手術・固定」两类，好给不同颜色的左边线
+function tagLph(root) {
+  const tag = (el) => el.querySelectorAll('.lph:not([data-k])').forEach((s) => {
+    const t = s.textContent;
+    s.dataset.k = /病期|急性期|慢性期|回復期|維持期|生活期|亜急性/.test(t) ? 'stage' : /手術|術後|術前|固定|OP/.test(t) ? 'op' : 'gen';
+  });
+  root.querySelectorAll('.lpl').forEach((ul) => { tag(ul); new MutationObserver(() => tag(ul)).observe(ul, { childList: true }); });
+}
+// 主题 chip 行：把每个分组名和它后面的 chip 包成一组（只改外层结构；各科 JS 用 #pills .pill 后代选择器，不受影响）
+function groupPills(root) {
+  root.querySelectorAll('#pills').forEach((p) => {
+    let cur = null;
+    [...p.children].forEach((ch) => {
+      if (ch.classList.contains('grp')) { const g = document.createElement('div'); g.className = 'pgrp'; cur = document.createElement('div'); cur.className = 'pgc'; p.insertBefore(g, ch); g.append(ch, cur); }
+      else if (cur && ch.matches('button.pill')) cur.appendChild(ch);
+    });
+  });
+}
+// 手机：全景マップ的图例收进「图例 ▾」
+function foldLegend(root) {
+  root.querySelectorAll('.legend').forEach((lg, i) => {
+    if (lg.classList.contains('lgd-fold')) return;
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'lgd-tog'; b.setAttribute('aria-expanded', 'false');
+    if (!lg.id) lg.id = 'lgdFold' + i;
+    b.setAttribute('aria-controls', lg.id);
+    b.textContent = '图例 ▾';
+    lg.classList.add('lgd-fold');
+    lg.before(b);
+    b.addEventListener('click', () => {
+      const on = !lg.classList.contains('is-open');
+      lg.classList.toggle('is-open', on);
+      b.setAttribute('aria-expanded', String(on));
+      b.textContent = on ? '图例 ▴' : '图例 ▾';
+    });
+  });
+}
+/* 手机全景マップ的默认缩放：各科的 fitView 都把节点范围放进 1480×800 的画布正中，
+   手机上整张画布只有 ~360px 宽，节点字只剩 3px。这里不动各科的 JS，只在外面改 <svg> 的 viewBox：
+   以画布中心（= fitView 对准的那一簇的中心）为中心放大到节点字 ≥ 11.5px。
+   各科的拖动・缩放・centerOn 都用 getScreenCTM 换算，所以 viewBox 变了照样正确。
+   「全体表示」按钮 = 回到整张画布（总览）；「詳細」模式自己管 viewBox，这里不插手。 */
+const MZ_FULL = '0 0 1480 800';
+function mapZoom(M, root) {
+  const web = root.getElementById('web'), view = root.getElementById('view');
+  if (!web || !view || M.mz) return;
+  const st = { mine: null, seen: null, k: 0, overview: false };
+  const tf = () => view.getAttribute('transform') || '';
+  const owned = () => { const v = web.getAttribute('viewBox'); return v === MZ_FULL || (st.mine && v === st.mine); };
+  const setVB = (v) => { if (web.getAttribute('viewBox') !== v) web.setAttribute('viewBox', v); st.mine = v; };
+  // 画布中心（fitView 对准的地方；centerOn 也把节点放在这里）最近的那个节点 → 以它为中心放大，不会落在空白的连线上
+  const near = () => {
+    const ctm = web.getScreenCTM();
+    if (!ctm) return null;
+    const inv = ctm.inverse(), p = web.createSVGPoint();
+    let best = null, bd = Infinity;
+    web.querySelectorAll('#nodes > g').forEach((g) => {
+      const r = g.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      p.x = r.left + r.width / 2; p.y = r.top + r.height / 2;
+      const q = p.matrixTransform(inv), d = (q.x - 740) ** 2 + (q.y - 400) ** 2;
+      if (d < bd) { bd = d; best = { x: q.x, y: q.y }; }
+    });
+    return best;
+  };
+  const place = (k, c) => {
+    const W = web.clientWidth, H = web.clientHeight;
+    if (!W || !H) return false;
+    const kF = Math.min(W / 1480, H / 800);
+    if (!k || k <= kF * 1.02) { setVB(MZ_FULL); st.k = 0; st.c = null; return true; }
+    c = c || st.c || { x: 740, y: 400 };
+    const w = W / k, h = H / k;
+    setVB(`${(c.x - w / 2).toFixed(1)} ${(c.y - h / 2).toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}`);
+    st.k = k; st.c = c;
+    return true;
+  };
+  const apply = () => {
+    if (!owned()) return;
+    if (!MAP_MQ_PHONE.matches || st.overview) { setVB(MZ_FULL); st.k = 0; st.seen = tf(); return; }
+    const W = web.clientWidth, H = web.clientHeight;
+    if (!W || !H) return; // 地图没显示，下次再说
+    const m = /scale\(([-\d.e]+)/.exec(tf()), s = m ? +m[1] || 1 : 1;
+    const lbl = web.querySelector('#nodes text');
+    const fs = (lbl && parseFloat(getComputedStyle(lbl).fontSize)) || 13.5;
+    const kF = Math.min(W / 1480, H / 800);
+    const k = Math.min(Math.max(kF, 11.5 / (fs * s)), kF * 5);
+    if (place(k, near())) st.seen = tf();
+  };
+  const sync = () => { if (tf() !== st.seen) apply(); };
+  root.addEventListener('click', (e) => {
+    const b = e.target.closest && e.target.closest('button');
+    if (!b) return;
+    if (b.id === 'btnIn' || b.id === 'btnOut') { requestAnimationFrame(() => { st.seen = tf(); }); return; }
+    if (b.id === 'btnFit') { st.overview = MAP_MQ_PHONE.matches; requestAnimationFrame(apply); return; }
+    st.overview = false;
+    requestAnimationFrame(() => requestAnimationFrame(sync));
+  });
+  // 拖动画布 / 滚轮缩放：是用户自己调的，不要再改回去
+  web.addEventListener('wheel', () => requestAnimationFrame(() => { st.seen = tf(); }), { passive: true });
+  window.addEventListener('pointerup', () => { if (st.seen !== null) st.seen = tf(); }, { passive: true });
+  if (window.ResizeObserver) new ResizeObserver(() => {
+    if (!owned()) return;
+    if (!MAP_MQ_PHONE.matches) { setVB(MZ_FULL); st.k = 0; return; }
+    if (st.k) place(st.k); else if (tf() !== st.seen) apply();
+  }).observe(web);
+  mqWatch(MAP_MQ_PHONE, () => { st.seen = null; apply(); });
+  M.mz = { sync: () => requestAnimationFrame(sync), apply };
 }
 const CHAP_EXTRA_CSS = '.ip-btn-link{background:none;padding:0 2px;min-height:32px;color:var(--seiji);border-radius:10px}.ip-btn-link:hover{text-decoration:underline;text-underline-offset:3px}';
 const BOOK_SHUT = '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M4.2 2.5h9.3v12.8H4.8A1.8 1.8 0 0 1 3 13.5V3.7a1.2 1.2 0 0 1 1.2-1.2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 13.5a1.8 1.8 0 0 1 1.8-1.8h8.7M6.5 5.5h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
