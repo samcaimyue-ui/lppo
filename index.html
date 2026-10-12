@@ -1154,7 +1154,7 @@ dialog.hk-tsheet { overflow-y: auto; }
 .nav .tabs.fade-l { --fl0: 14px; --fl: 40px; }
 .nav .tabs.fade-r { --fr0: 14px; --fr: 40px; }
 .hk-rhythm li:last-child i svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-.hk-rhythm li:last-child i { background: var(--seiji); color: var(--on-seiji); box-shadow: none; }
+.hk-rhythm li:last-child i { background: var(--seiji-soft); color: var(--seiji); box-shadow: inset 0 0 0 1.5px var(--seiji); }
 .hk-rhythm { margin-top: var(--space-4); }
 @media (max-width: 560px) {
   #kkKindSeg { display: flex; width: 100%; box-sizing: border-box; }
@@ -20637,7 +20637,7 @@ function buildRings() {
   });
   const g = document.createElementNS(SVGNS, 'g');
   g.setAttribute('class', 'seal s-0'); g.id = 'ringSeal';
-  g.innerHTML = `<rect x="${c - 19}" y="${c - 19}" width="38" height="38" rx="7" transform="rotate(-6 ${c} ${c})"/><text x="${c}" y="${c + 1}" transform="rotate(-6 ${c} ${c})">歩</text>`;
+  g.innerHTML = `<rect x="${c - 19}" y="${c - 19}" width="38" height="38" rx="7" transform="rotate(-6 ${c} ${c})"/><text x="${c}" y="${c + 1}" transform="rotate(-6 ${c} ${c})" lang="ja">歩</text>`;
   svg.appendChild(g);
 }
 function ringVals() {
