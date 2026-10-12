@@ -5514,7 +5514,7 @@ function kgGame(stage,K,o){const d=K.div("kgame","",stage);let ok=0,won=false,ms
     say(m,c){msg=m;cls=c||"";draw();},get ok(){return ok;},get won(){return won;},el:d};}
 function kgShuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function kgBtns(stage,K,items,cls){const d=K.div("kans"+(cls?" "+cls:""),items.map(([v,l,c])=>`<button type="button" class="kab" data-v="${v}"${c?` style="--kc:${c}"`:""}>${l}</button>`).join(""),stage);
-  const bs=[...d.querySelectorAll("button")];return {el:d,bs,mark(right,picked){bs.forEach(b=>{b.classList.toggle("kok",b.dataset.v===String(right));b.classList.toggle("kng",picked!==undefined&&b.dataset.v===String(picked)&&String(picked)!==String(right));});},clear(){bs.forEach(b=>b.classList.remove("kok","kng"));},on(f){bs.forEach(b=>b.addEventListener("click",()=>f(b.dataset.v,b)));}};}
+  const bs=[...d.querySelectorAll("button")];return {el:d,bs,mark(right,picked){bs.forEach(b=>{b.classList.toggle("kok",b.dataset.v===String(right));b.classList.toggle("ksel",picked===undefined);b.classList.toggle("kng",picked!==undefined&&b.dataset.v===String(picked)&&String(picked)!==String(right));});},clear(){bs.forEach(b=>b.classList.remove("kok","kng","ksel"));},on(f){bs.forEach(b=>b.addEventListener("click",()=>f(b.dataset.v,b)));}};}
 
 
 /* ---- 評価演習の共通:患者さんの顔と吹き出し ---- */
@@ -11130,7 +11130,7 @@ function kgGame(stage,K,o){const d=K.div("kgame","",stage);let ok=0,won=false,ms
     say(m,c){msg=m;cls=c||"";draw();},get ok(){return ok;},get won(){return won;},el:d};}
 function kgShuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function kgBtns(stage,K,items,cls){const d=K.div("kans"+(cls?" "+cls:""),items.map(([v,l,c])=>`<button type="button" class="kab" data-v="${v}"${c?` style="--kc:${c}"`:""}>${l}</button>`).join(""),stage);
-  const bs=[...d.querySelectorAll("button")];return {el:d,bs,mark(right,picked){bs.forEach(b=>{b.classList.toggle("kok",b.dataset.v===String(right));b.classList.toggle("kng",picked!==undefined&&b.dataset.v===String(picked)&&String(picked)!==String(right));});},clear(){bs.forEach(b=>b.classList.remove("kok","kng"));},on(f){bs.forEach(b=>b.addEventListener("click",()=>f(b.dataset.v,b)));}};}
+  const bs=[...d.querySelectorAll("button")];return {el:d,bs,mark(right,picked){bs.forEach(b=>{b.classList.toggle("kok",b.dataset.v===String(right));b.classList.toggle("ksel",picked===undefined);b.classList.toggle("kng",picked!==undefined&&b.dataset.v===String(picked)&&String(picked)!==String(right));});},clear(){bs.forEach(b=>b.classList.remove("kok","kng","ksel"));},on(f){bs.forEach(b=>b.addEventListener("click",()=>f(b.dataset.v,b)));}};}
 
 
 /* ---- 評価演習の共通:患者さんの顔と吹き出し ---- */
@@ -15554,7 +15554,7 @@ function kgGame(stage,K,o){const d=K.div("kgame","",stage);let ok=0,won=false,ms
     say(m,c){msg=m;cls=c||"";draw();},get ok(){return ok;},get won(){return won;},el:d};}
 function kgShuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function kgBtns(stage,K,items,cls){const d=K.div("kans"+(cls?" "+cls:""),items.map(([v,l,c])=>`<button type="button" class="kab" data-v="${v}"${c?` style="--kc:${c}"`:""}>${l}</button>`).join(""),stage);
-  const bs=[...d.querySelectorAll("button")];return {el:d,bs,mark(right,picked){bs.forEach(b=>{b.classList.toggle("kok",b.dataset.v===String(right));b.classList.toggle("kng",picked!==undefined&&b.dataset.v===String(picked)&&String(picked)!==String(right));});},clear(){bs.forEach(b=>b.classList.remove("kok","kng"));},on(f){bs.forEach(b=>b.addEventListener("click",()=>f(b.dataset.v,b)));}};}
+  const bs=[...d.querySelectorAll("button")];return {el:d,bs,mark(right,picked){bs.forEach(b=>{b.classList.toggle("kok",b.dataset.v===String(right));b.classList.toggle("ksel",picked===undefined);b.classList.toggle("kng",picked!==undefined&&b.dataset.v===String(picked)&&String(picked)!==String(right));});},clear(){bs.forEach(b=>b.classList.remove("kok","kng","ksel"));},on(f){bs.forEach(b=>b.addEventListener("click",()=>f(b.dataset.v,b)));}};}
 
 /* ---- 動く図解:身体の面と運動軸 ---- */
 ANIMS.push({id:"planes",grp:"関節可動域訓練",tag:"面と軸",title:"身体の面と運動軸:動きを見て面を当てる",zh:"身体的面与运动轴 · 看动作猜是哪个面",
@@ -18091,7 +18091,7 @@ function kgGame(stage,K,o){const d=K.div("kgame","",stage);let ok=0,won=false,ms
     say(m,c){msg=m;cls=c||"";draw();},get ok(){return ok;},get won(){return won;},el:d};}
 function kgShuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function kgBtns(stage,K,items,cls){const d=K.div("kans"+(cls?" "+cls:""),items.map(([v,l,c])=>`<button type="button" class="kab" data-v="${v}"${c?` style="--kc:${c}"`:""}>${l}</button>`).join(""),stage);
-  const bs=[...d.querySelectorAll("button")];return {el:d,bs,mark(right,picked){bs.forEach(b=>{b.classList.toggle("kok",b.dataset.v===String(right));b.classList.toggle("kng",picked!==undefined&&b.dataset.v===String(picked)&&String(picked)!==String(right));});},clear(){bs.forEach(b=>b.classList.remove("kok","kng"));},on(f){bs.forEach(b=>b.addEventListener("click",()=>f(b.dataset.v,b)));}};}
+  const bs=[...d.querySelectorAll("button")];return {el:d,bs,mark(right,picked){bs.forEach(b=>{b.classList.toggle("kok",b.dataset.v===String(right));b.classList.toggle("ksel",picked===undefined);b.classList.toggle("kng",picked!==undefined&&b.dataset.v===String(picked)&&String(picked)!==String(right));});},clear(){bs.forEach(b=>b.classList.remove("kok","kng","ksel"));},on(f){bs.forEach(b=>b.addEventListener("click",()=>f(b.dataset.v,b)));}};}
 
 
 /* ---- 評価演習の共通:患者さんの顔と吹き出し ---- */
@@ -20452,7 +20452,7 @@ function kgGame(stage,K,o){const d=K.div("kgame","",stage);let ok=0,won=false,ms
     say(m,c){msg=m;cls=c||"";draw();},get ok(){return ok;},get won(){return won;},el:d};}
 function kgShuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function kgBtns(stage,K,items,cls){const d=K.div("kans"+(cls?" "+cls:""),items.map(([v,l,c])=>`<button type="button" class="kab" data-v="${v}"${c?` style="--kc:${c}"`:""}>${l}</button>`).join(""),stage);
-  const bs=[...d.querySelectorAll("button")];return {el:d,bs,mark(right,picked){bs.forEach(b=>{b.classList.toggle("kok",b.dataset.v===String(right));b.classList.toggle("kng",picked!==undefined&&b.dataset.v===String(picked)&&String(picked)!==String(right));});},clear(){bs.forEach(b=>b.classList.remove("kok","kng"));},on(f){bs.forEach(b=>b.addEventListener("click",()=>f(b.dataset.v,b)));}};}
+  const bs=[...d.querySelectorAll("button")];return {el:d,bs,mark(right,picked){bs.forEach(b=>{b.classList.toggle("kok",b.dataset.v===String(right));b.classList.toggle("ksel",picked===undefined);b.classList.toggle("kng",picked!==undefined&&b.dataset.v===String(picked)&&String(picked)!==String(right));});},clear(){bs.forEach(b=>b.classList.remove("kok","kng","ksel"));},on(f){bs.forEach(b=>b.addEventListener("click",()=>f(b.dataset.v,b)));}};}
 
 
 /* ---- 評価演習の共通:患者さんの顔と吹き出し ---- */
@@ -23546,6 +23546,10 @@ button.nchip,button.nchip[style]{border:2px solid var(--rule)!important;color:va
   .lgd-tog[aria-expanded="true"]{background:var(--rule);color:var(--surface)}
   .legend.lgd-fold:not(.is-open){display:none}
 }
+/* 動く図解の選択肢：選択中(mark(v)、.ksel)=黒、答えの正解表示(mark(right,picked))=青 + ✓、不正解=赤 + ✗ */
+.kab.kok:not(.ksel){background:var(--bh-blue);border-color:var(--bh-blue);border-left-color:var(--kc,var(--bh-blue));color:var(--on-seiji)}
+.kab.kok:not(.ksel)::after{content:" ✓";font-weight:900}
+.kab.kng::after{content:" ✗";font-weight:900}
 `;
 function clampLeads(root) {
   root.querySelectorAll('.lead').forEach((lead) => {
