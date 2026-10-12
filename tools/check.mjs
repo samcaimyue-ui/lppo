@@ -21,6 +21,13 @@ for (const m of scripts) {
 }
 console.log(`✓ 检查了 ${scripts.length} 个 <script>`);
 
+// 1b) 页面上的 id 不能重复（$('#x') 只会拿到第一个，重复会让原有功能悄悄坏掉）
+const markup = html.replace(/<script>[\s\S]*?<\/script>/g, '').replace(/<style>[\s\S]*?<\/style>/g, '');
+const seen = new Map();
+for (const m of markup.matchAll(/\sid="([^"]+)"/g)) seen.set(m[1], (seen.get(m[1]) || 0) + 1);
+for (const [id, n] of seen) if (n > 1) problems.push(`id="${id}" 出现了 ${n} 次`);
+console.log(`✓ 检查了 ${seen.size} 个 id`);
+
 // 2) 暗記卡片 IppoDrill
 const dm = html.match(/^window\.IppoDrill=(.*?);?$/m);
 if (!dm) problems.push('找不到 window.IppoDrill');

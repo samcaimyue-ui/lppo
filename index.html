@@ -1102,15 +1102,46 @@ dialog.hk-tsheet { overflow-y: auto; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --track: rgba(242, 240, 234, 0.11); } }
 :root[data-theme="dark"] { --track: rgba(242, 240, 234, 0.11); }
 .ip-bar, .gt-bar, .ip-ach-bar, .dr-split { background: var(--track); }
-.ip-btn:disabled { opacity: 1; background: transparent; color: var(--ink-secondary); box-shadow: inset 0 0 0 1px var(--line); filter: none; }
-.nav .tabs { --fl: 0px; --fr: 0px; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--fl), #000 calc(100% - var(--fr)), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 var(--fl), #000 calc(100% - var(--fr)), transparent 100%); }
-.nav .tabs.fade-l { --fl: 28px; }
-.nav .tabs.fade-r { --fr: 36px; }
+.ip-btn:disabled { opacity: .6; background: transparent; color: var(--ink-secondary); box-shadow: none; outline: 1.5px dashed var(--line); outline-offset: -1.5px; filter: none; cursor: not-allowed; }
+/* 横向滑动区域：能滚的一侧边缘先全透明 8px 再渐隐，不残留半个字 */
+.hfade { --fl0: 0px; --fl: 0px; --fr0: 0px; --fr: 0px; -webkit-mask-image: linear-gradient(90deg, transparent var(--fl0), #000 var(--fl), #000 calc(100% - var(--fr)), transparent calc(100% - var(--fr0))); mask-image: linear-gradient(90deg, transparent var(--fl0), #000 var(--fl), #000 calc(100% - var(--fr)), transparent calc(100% - var(--fr0))); }
+.hfade.fade-l { --fl0: 8px; --fl: 32px; }
+.hfade.fade-r { --fr0: 8px; --fr: 36px; }
+/* 导航：选中底块滑动过去 */
+.nav .tabs { position: relative; }
+.nav .tabs .tab-pill { position: absolute; top: 3px; left: 0; height: calc(100% - 6px); border-radius: var(--radius-full); background: var(--surface-raised); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); transition: transform .32s var(--ip-ease), width .32s var(--ip-ease); pointer-events: none; z-index: 0; }
+.nav .tabs.has-pill .tab { position: relative; z-index: 1; }
+.nav .tabs.has-pill .tab[aria-pressed="true"] { background: transparent; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .nav .tabs .tab-pill { transition: none; } }
+/* 手机点击区域 ≥ 44px：只扩大可点范围，不改变外观 */
+@media (max-width: 760px) {
+  .tab, .icon-btn, .ip-btn-link, .ip-btn-sm { position: relative; }
+  .tab::before, .icon-btn::before, .ip-btn-link::before, .ip-btn-sm::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 44px; transform: translateY(-50%); }
+  .icon-btn::before { left: -4px; right: -4px; }
+  #kokushiView .bento > [aria-labelledby="kkPickTitle"] { order: -1; }
+}
+/* 实習：电脑上两栏（小标题 | 正文） */
+@media (min-width: 861px) {
+  #jisshuView .jw-roles li { grid-template-columns: 14em minmax(0, 1fr); column-gap: 40px; align-items: baseline; }
+  #jisshuView .jw-roles li > :not(.r) { grid-column: 2; }
+}
+/* 白紙空状态：复习节奏 */
+.hk-rhythm { list-style: none; margin: var(--space-6) 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; position: relative; }
+.hk-rhythm::before { content: ""; position: absolute; left: 12%; right: 12%; top: 15px; border-top: 1.5px dashed var(--line); }
+.hk-rhythm li { position: relative; display: grid; justify-items: center; gap: 6px; text-align: center; }
+.hk-rhythm i { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-raised); box-shadow: inset 0 0 0 1.5px var(--seiji); color: var(--seiji); font-style: normal; font-family: var(--font-sans); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.hk-rhythm li:first-child i { background: var(--seiji); color: var(--on-seiji); box-shadow: none; }
+.hk-rhythm li:last-child i { background: var(--toki-ink); color: var(--surface-raised); box-shadow: none; font-family: var(--font-seal); font-weight: 400; }
+.hk-rhythm b { font-size: 14px; line-height: 20px; }
+.hk-rhythm span { font-size: 13px; line-height: 18px; color: var(--ink-secondary); }
+.kk-empty { font-size: 13px; line-height: 20px; color: var(--ink-secondary); margin-top: var(--space-3); }
+/* 统计数字统一：分母用无衬线小字 */
+.map-stat b small, .dr-big small { font-family: var(--font-sans); font-style: normal; }
 .lv-badge { font-family: var(--font-sans); font-weight: 700; letter-spacing: 0; font-variant-numeric: tabular-nums lining-nums; }
 .grp-btn .gi, .gt-item .gi { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--seiji-soft); color: var(--seiji); font-size: 0; }
 .grp-btn .gi svg, .gt-item .gi svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .grp-btn[aria-pressed="true"] .gi { background: color-mix(in srgb, var(--on-seiji) 18%, transparent); color: var(--on-seiji); }
-#jisshuView .jw-roles .w, #jisshuView .jx-self p { max-width: 40em; }
+#jisshuView .jx-self p { max-width: 40em; }
 @media (prefers-reduced-motion: reduce) { .nav .tabs { scroll-behavior: auto; } }
 </style>
 
@@ -1118,7 +1149,7 @@ dialog.hk-tsheet { overflow-y: auto; }
 <header class="nav">
   <div class="wrap">
     <div class="brand">Ippo <small>一歩</small></div>
-    <nav class="tabs" aria-label="切换页面"><button type="button" class="tab" data-tab="today" aria-pressed="true">今日</button><button type="button" class="tab" data-tab="g:move" aria-pressed="false">運動</button><button type="button" class="tab" data-tab="cns" aria-pressed="false">中枢神経<span class="tab-x">マップ</span></button><button type="button" class="tab" data-tab="g:med" aria-pressed="false">疾病<span class="tab-x">・基础医学</span></button><button type="button" class="tab" data-tab="tashoku" aria-pressed="false">多職種</button><button type="button" class="tab" data-tab="hakushi" aria-pressed="false">白紙</button><button type="button" class="tab" data-tab="drill" aria-pressed="false">ドリル</button><button type="button" class="tab" data-tab="kokushi" aria-pressed="false">国試</button><button type="button" class="tab" data-tab="jisshu" aria-pressed="false">実習</button></nav>
+    <nav class="tabs hfade" aria-label="切换页面"><button type="button" class="tab" data-tab="today" aria-pressed="true">今日</button><button type="button" class="tab" data-tab="g:move" aria-pressed="false">運動</button><button type="button" class="tab" data-tab="cns" aria-pressed="false">中枢神経<span class="tab-x">マップ</span></button><button type="button" class="tab" data-tab="g:med" aria-pressed="false">疾病<span class="tab-x">・基础医学</span></button><button type="button" class="tab" data-tab="tashoku" aria-pressed="false">多職種</button><button type="button" class="tab" data-tab="hakushi" aria-pressed="false">白紙</button><button type="button" class="tab" data-tab="drill" aria-pressed="false">ドリル</button><button type="button" class="tab" data-tab="kokushi" aria-pressed="false">国試</button><button type="button" class="tab" data-tab="jisshu" aria-pressed="false">実習</button></nav>
     <div class="nav-right">
       <button type="button" class="pill pill-timer num" id="navTimer" hidden>专注中 25:00</button>
       <span id="navLevel"><span class="lv-badge lvc-0">Lv 0</span><span class="lv-name">見学生</span></span>
@@ -1585,6 +1616,12 @@ dialog.hk-tsheet { overflow-y: auto; }
       <h3 class="ip-tile-title" id="hkDueTitle">今天要重画的</h3>
       <p class="ip-tile-body" id="hkDueBody">画完第一张白紙，明天它会出现在这里。</p>
       <ul class="hk-list" id="hkDueList"></ul>
+      <ol class="hk-rhythm" id="hkRhythm" aria-label="复习节奏">
+        <li><i>今</i><b>今天</b><span>画第一张</span></li>
+        <li><i>1</i><b>1 天后</b><span>凭记忆重画</span></li>
+        <li><i>3</i><b>3 天后</b><span>再画一次</span></li>
+        <li><i>済</i><b>7 天后</b><span>记牢了</span></li>
+      </ol>
     </section>
     <section class="ip-tile span-2" aria-labelledby="hkProgTitle">
       <p class="ip-eyebrow" id="hkProgTitle">看得见的进步</p>
@@ -1798,7 +1835,8 @@ dialog.hk-tsheet { overflow-y: auto; }
       <p class="ip-eyebrow" id="kkWrongTitle">错题本</p>
       <div class="dr-big" id="kkWrong">0<small>题</small></div>
       <p class="ip-tile-body" id="kkWrongNote">最近一次答错的题都在这里。重做答对了，就会自己移出去。</p>
-      <div class="cta"><button type="button" class="ip-btn ip-btn-secondary" id="kkWrongGo" disabled>重做错题</button></div>
+      <div class="cta"><button type="button" class="ip-btn ip-btn-secondary" id="kkWrongGo" hidden>重做错题</button></div>
+      <p class="kk-empty" id="kkWrongEmpty">还没有错题，做完一场再来。</p>
     </section>
     <section class="ip-tile span-6" aria-labelledby="kkPickTitle">
       <p class="ip-eyebrow">选题</p>
@@ -20977,7 +21015,7 @@ function ensureMap(M) {
   const css = M.key === 'map' ? def.css : ((window.IppoMap && window.IppoMap.css) || '') + def.css;
   root.innerHTML = '<style>' + css + CHAP_EXTRA_CSS + MAP_POLISH_CSS + '</style>' + def.html;
   ['pointerdown', 'keydown', 'input', 'wheel'].forEach((ev) => root.addEventListener(ev, markActive, { capture: true, passive: true }));
-  try { M.views = def.mount(root, makeBus(M)); clampLeads(root); }
+  try { M.views = def.mount(root, makeBus(M)); clampLeads(root); hfadeAll(root); }
   catch (e) { M.views = null; root.innerHTML = '<p style="padding:24px;font-family:sans-serif">地图没能加载：' + esc(e && e.message ? e.message : e) + '</p>'; }
 }
 function curMap() { return MAPS[tab] || null; }
@@ -21002,10 +21040,29 @@ function renderGrpTiles() {
 document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('[data-grp-go],[data-grp-open]'); if (!b) return; if (b.dataset.grpGo) showTab(b.dataset.grpGo); else showTab('g:' + b.dataset.grpOpen); });
 const TABS = ['today', 'map', 'cns', 'byo', 'nai', 'sei', 'kis', 'hyo', 'ort', 'tashoku', 'hakushi', 'drill', 'kokushi', 'jisshu'];
 const LIVE_TABS = { tashoku: '多職種連携', drill: '記憶ドリル', kokushi: '国家試験' };
-function navFade() {
-  const n = document.querySelector('.nav .tabs'); if (!n) return;
+function hfadeSync(n) {
   n.classList.toggle('fade-l', n.scrollLeft > 4);
   n.classList.toggle('fade-r', n.scrollLeft + n.clientWidth < n.scrollWidth - 4);
+}
+function hfadeAll(root) {
+  (root || document).querySelectorAll('.nav .tabs, .grp-row, .kk-exams, .modebar').forEach((n) => {
+    n.classList.add('hfade');
+    if (!n.dataset.hf) { n.dataset.hf = '1'; n.addEventListener('scroll', () => hfadeSync(n), { passive: true }); }
+    hfadeSync(n);
+  });
+}
+function navPill() {
+  const n = document.querySelector('.nav .tabs'), a = n && n.querySelector('.tab[aria-pressed="true"]');
+  if (!n || !a) return;
+  let pill = n.querySelector('.tab-pill');
+  if (!pill) { pill = document.createElement('span'); pill.className = 'tab-pill'; pill.setAttribute('aria-hidden', 'true'); n.prepend(pill); n.classList.add('has-pill'); }
+  pill.style.width = a.offsetWidth + 'px';
+  pill.style.transform = `translateX(${a.offsetLeft}px)`;
+}
+function navFade() {
+  navPill();
+  hfadeAll(document);
+  document.querySelectorAll('#mapView [id$="Host"]').forEach((h) => { if (h.shadowRoot) hfadeAll(h.shadowRoot); });
 }
 function centerNavTab() {
   const n = document.querySelector('.nav .tabs'), a = n && n.querySelector('.tab[aria-pressed="true"]');
@@ -21014,7 +21071,7 @@ function centerNavTab() {
   n.scrollTo({ left: a.offsetLeft - (n.clientWidth - a.offsetWidth) / 2, behavior: smooth ? 'smooth' : 'auto' });
   navFade();
 }
-(() => { const n = document.querySelector('.nav .tabs'); if (!n) return; n.addEventListener('scroll', navFade, { passive: true }); window.addEventListener('resize', navFade); requestAnimationFrame(navFade); })();
+(() => { window.addEventListener('resize', navFade); requestAnimationFrame(navFade); if (document.fonts) document.fonts.ready.then(navFade); })();
 function showTab(t, keepScroll) {
   if (typeof t === 'string' && t.indexOf('g:') === 0) t = GROUPS[t.slice(2)] ? grpLast(t.slice(2)) : 'today';
   if (typeof t === 'string' && GROUPS[t]) t = grpLast(t);
@@ -21041,6 +21098,7 @@ function showTab(t, keepScroll) {
   }
   try { localStorage.setItem('ippo.tab', tab); } catch (e) { /* ignore */ }
   centerNavTab();
+  requestAnimationFrame(navFade);
   if (!keepScroll) window.scrollTo(0, 0);
   renderMapInfo();
   renderTabDyn();
@@ -21757,15 +21815,27 @@ const SRC_HK = [
 // 品质打磨 r1：地图里的小字放大、子标签不折行、长说明折叠
 const MAP_POLISH_CSS = '.kind,.eq,.lph,.ctlh,.ctlh span,.ctlh em,.cd,.rel h3{font-size:12px}.zh,.u,summary,.supn,.z,.badge,.lpctx{font-size:12.5px}.kt{font-size:11px}'
   + '.modebar{flex-wrap:nowrap;overflow-x:auto;max-width:100%;scrollbar-width:none}.modebar::-webkit-scrollbar{display:none}.mbtn{white-space:nowrap;flex:none}'
-  + '.lead.is-clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}'
-  + '.lead-more{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:4px 2px;min-height:32px;border:0;background:none;color:var(--m-in);font:600 13px var(--m-sans,inherit);cursor:pointer;border-radius:8px}.lead-more:hover{text-decoration:underline;text-underline-offset:3px}.lead-more[hidden]{display:none}'
-  + '@media (max-width:560px){.mbtn{padding:9px 14px}}';
+  + '.lead.is-clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}@media (max-width:760px){.lead.is-clamp{-webkit-line-clamp:2}}'
+  + '.lead-more{display:inline-flex;align-items:center;gap:4px;margin:2px 0 0 -12px;padding:0 12px;min-height:44px;border:0;background:none;color:var(--m-in);font:600 13px var(--m-sans,inherit);cursor:pointer;border-radius:10px}.lead-more:hover{text-decoration:underline;text-underline-offset:3px}.lead-more[hidden]{display:none}'
+  + '.map-note{margin:10px 0 0;padding-left:10px;border-left:2px solid var(--m-hair);color:var(--m-muted);font-size:12.5px;line-height:1.6;max-width:76ch}.map-note p{margin:0}.map-note p+p{margin-top:4px}.map-note b{color:var(--m-ink)}.map-note[hidden]{display:none}'
+  + '.modebar{margin-top:16px}@media (max-width:760px){.mbtn{padding:0 14px;min-height:44px}.lbtn{min-height:40px}}';
 function clampLeads(root) {
   root.querySelectorAll('.lead').forEach((lead) => {
     const btn = document.createElement('button');
     btn.type = 'button'; btn.className = 'lead-more'; btn.setAttribute('aria-expanded', 'false');
-    lead.after(btn);
-    let open = false;
+    const note = document.createElement('div');
+    note.className = 'map-note';
+    lead.after(btn, note);
+    let open = false, mine = null;
+    // ※ の注意書きと「点線の枠」の凡例は折りたたまず、常に見える行に出す（文言はそのまま）
+    const split = () => {
+      if (lead.innerHTML === mine) return; // 自分で書き戻した直後は何もしない
+      const parts = lead.innerHTML.split(/(?<=。)/);
+      const keep = parts.filter((t) => !/※|点線の枠/.test(t)), out = parts.filter((t) => /※|点線の枠/.test(t));
+      if (out.length) { lead.innerHTML = keep.join(''); mine = lead.innerHTML; }
+      note.innerHTML = out.map((t) => '<p>' + t.trim() + '</p>').join('');
+      note.hidden = !out.length;
+    };
     const sync = () => {
       lead.classList.toggle('is-clamp', !open);
       const over = open || lead.scrollHeight > lead.clientHeight + 2;
@@ -21774,9 +21844,9 @@ function clampLeads(root) {
       btn.setAttribute('aria-expanded', String(open));
     };
     btn.addEventListener('click', () => { open = !open; sync(); });
-    new MutationObserver(() => requestAnimationFrame(sync)).observe(lead, { childList: true, characterData: true, subtree: true });
+    new MutationObserver(() => { split(); requestAnimationFrame(sync); }).observe(lead, { childList: true, characterData: true, subtree: true });
     if (window.ResizeObserver) new ResizeObserver(() => sync()).observe(lead);
-    sync();
+    split(); sync();
   });
 }
 const CHAP_EXTRA_CSS = '.ip-btn-link{background:none;padding:0 2px;min-height:32px;color:var(--seiji);border-radius:10px}.ip-btn-link:hover{text-decoration:underline;text-underline-offset:3px}';
@@ -22748,6 +22818,7 @@ function renderHkView() {
   $('#hkDueBtn').hidden = !due.length;
   $('#hkDueBtn').textContent = `重画到期的（${due.length}）`;
   $('#hkDueTitle').textContent = due.length ? `今天有 ${due.length} 张要重画。` : '今天没有要重画的。';
+  $('#hkRhythm').hidden = !!due.length;
   const next = all.slice().sort((a, b) => (a.due < b.due ? -1 : a.due > b.due ? 1 : 0))[0];
   $('#hkDueBody').textContent = due.length ? '先别翻书，也别看上次的图。凭记忆重画，画完再翻开对照。' : next ? `下一张是「${next.title}」，${inDays(next.due)}（${mdDate(next.due)}）。想画新的，就开一张新的白紙。` : '画完第一张白紙，明天它会出现在这里。';
   $('#hkDueList').innerHTML = due.map((T) => hkRow(T, 'redraw')).join('');
@@ -22967,6 +23038,8 @@ function renderKk() {
   const wrongIds = ids.filter((id) => KR[id][0] === 0);
   $('#kkWrong').innerHTML = `${fmt(wrongIds.length)}<small>题</small>`;
   $('#kkWrongGo').disabled = !wrongIds.length;
+  $('#kkWrongGo').hidden = !wrongIds.length;
+  $('#kkWrongEmpty').hidden = !!wrongIds.length;
   $('#kkExams').innerHTML = KK_EXAMS.map(([n, era]) => {
     const done = ids.filter((id) => id.startsWith(n + '-')).length;
     return `<button type="button" class="kk-ex" data-kk-exam="${n}" aria-pressed="${n === kkSel.n}"><b>第${n}回</b><span>${era} · ${done}/300</span></button>`;
