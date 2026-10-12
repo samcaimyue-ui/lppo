@@ -1292,6 +1292,273 @@ dialog { border-radius: 0; border: var(--rule-w) solid var(--rule); box-shadow: 
    ·
 */
 /* ==== BH:hakushi-tashoku（白紙页 + 画白紙弹窗 + 多職種页）==== */
+/* 原色块上的字色：浅色模式白字，深色模式（原色调亮）黑字 */
+:root { --bh-on-red: #fff; --bh-on-blue: #fff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bh-on-red: #141414; --bh-on-blue: #0a0a0a; } }
+:root[data-theme="dark"] { --bh-on-red: #141414; --bh-on-blue: #0a0a0a; }
+/* --- 大标题：各页自己的几何构成（SVG 装饰，永远在文字下层） --- */
+#hakushiView .hero::before, #hakushiView .hero::after, #tashokuView .hero::before, #tashokuView .hero::after { display: none; }
+#hakushiView .hero > .bh-deco, #tashokuView .hero > .bh-deco { position: absolute; z-index: 0; right: 0; top: 40px; width: min(22vw, 270px); height: auto; pointer-events: none; overflow: visible; }
+#hakushiView .hero .lead, #tashokuView .hero .lead { max-width: min(38em, calc(100% - min(22vw, 270px) - 32px)); }
+.bh-deco .r { fill: var(--bh-red); }
+.bh-deco .y { fill: var(--bh-yellow); }
+.bh-deco .b { fill: var(--bh-blue); }
+.bh-deco .sheet { fill: var(--surface-raised); stroke: var(--rule); stroke-width: 6; }
+.bh-deco .ln { stroke: var(--rule); stroke-width: 4; fill: none; }
+.bh-deco .st { stroke: var(--rule); stroke-width: 8; fill: none; stroke-linejoin: miter; stroke-linecap: square; }
+.bh-deco .nd { fill: var(--surface); stroke: var(--rule); stroke-width: 6; }
+@media (max-width: 860px) {
+  #hakushiView .hero > .bh-deco, #tashokuView .hero > .bh-deco { top: 18px; width: 96px; }
+  #hakushiView .hero .lead, #tashokuView .hero .lead { max-width: none; }
+}
+
+/* --- 段落标题右侧：细横线阵列 ≡（参考图） --- */
+@media (min-width: 861px) {
+  #hakushiView .section-head, #tashokuView .section-head { position: relative; padding-right: 72px; }
+  #hakushiView .section-head::after, #tashokuView .section-head::after { content: ""; position: absolute; right: 0; bottom: 8px; width: 52px; height: 30px; background: repeating-linear-gradient(to bottom, var(--rule) 0 2px, transparent 2px 7px); }
+}
+#hakushiView .section-head .count, #tashokuView .section-head .count { font-style: normal; }
+
+/* ================= 白紙页 ================= */
+/* 复习节奏 = 时间轴：黑色直角折线（一级一级往上）+ 节点 */
+#hakushiView .hk-rhythm { --step: 18px; --gap: 8px; margin-top: var(--space-6); padding-top: 4px; gap: var(--gap); }
+#hakushiView .hk-rhythm::before { display: none; }
+#hakushiView .hk-rhythm li { --lv: calc(var(--step) * 3); padding-top: var(--lv); align-content: start; }
+#hakushiView .hk-rhythm li:nth-child(2) { --lv: calc(var(--step) * 2); }
+#hakushiView .hk-rhythm li:nth-child(3) { --lv: var(--step); }
+#hakushiView .hk-rhythm li:nth-child(4) { --lv: 0px; }
+#hakushiView .hk-rhythm li::before, #hakushiView .hk-rhythm li::after { content: ""; position: absolute; z-index: 0; pointer-events: none; border: 0 solid var(--rule); }
+#hakushiView .hk-rhythm li:not(:first-child)::before { left: calc(var(--gap) / -2); width: calc(50% + var(--gap) / 2); top: calc(var(--lv) + 13px); border-top-width: 3px; }
+#hakushiView .hk-rhythm li:not(:last-child)::after { left: 50%; width: calc(50% + var(--gap) / 2); top: calc(var(--lv) - var(--step) + 13px); height: var(--step); border-bottom-width: 3px; border-right-width: 3px; box-sizing: content-box; }
+#hakushiView .hk-rhythm i { position: relative; z-index: 1; width: 30px; height: 30px; border-radius: 50%; background: var(--surface-raised); box-shadow: inset 0 0 0 3px var(--rule); color: var(--ink); font-family: var(--font-num); font-stretch: 118%; font-weight: 800; font-size: 14px; }
+#hakushiView .hk-rhythm li:first-child i { background: var(--bh-red); color: var(--bh-on-red); box-shadow: none; font-family: var(--font-display); }
+#hakushiView .hk-rhythm li:last-child i { border-radius: 0; background: var(--rule); color: var(--surface); box-shadow: none; }
+#hakushiView .hk-rhythm b { font-family: var(--font-display); font-stretch: 112%; font-weight: 800; font-size: 14px; }
+#hakushiView .hk-rhythm span { color: var(--ink-secondary); }
+
+/* 进度 tile */
+#hakushiView .dr-split { height: 14px; box-shadow: inset 0 0 0 2px var(--rule); background: transparent; }
+#hakushiView .dr-split .m { background: var(--bh-blue); } #hakushiView .dr-split .l { background: var(--bh-yellow); opacity: 1; }
+#hakushiView .dr-kv { padding-top: var(--space-3); border-top: 2px solid var(--rule); }
+#hakushiView .atoms i, #tashokuView .atoms i { border-radius: 0; }
+#hakushiView .hk-prog { color: var(--ink-secondary); }
+
+/* 列表行 */
+#hakushiView .hk-row { border-bottom: 2px solid var(--rule); }
+#hakushiView .hk-row:last-child { border-bottom: 0; }
+#hakushiView .hk-pips i { border-radius: 0; width: 6px; box-shadow: inset 0 0 0 1px var(--rule); }
+#hakushiView .hk-pips i.on { background: var(--bh-blue); }
+#hakushiView .hk-spark i { border-radius: 0; background: var(--rule); opacity: .35; }
+#hakushiView .hk-spark i:last-child { background: var(--bh-red); opacity: 1; }
+
+/* 每周重画 */
+#hakushiView .hk-week-t { font-weight: 900; font-stretch: 112%; }
+#hakushiView .hk-week-done { border-radius: 0; background: var(--bh-blue); color: var(--bh-on-blue); font-weight: 700; }
+#hakushiView .hk-tchip { border-radius: 0; min-height: 44px; border: 2px solid var(--rule); background: transparent; font-weight: 600; }
+#hakushiView .hk-tchip:hover { border-color: var(--rule); background: var(--bh-yellow); color: #141414; }
+#hakushiView .hk-tchip.is-ok { background: var(--rule); color: var(--surface); border-color: var(--rule); }
+#hkWeek .ip-tile::before { background: var(--bh-yellow); }
+#hkMapSec .ip-tile::before { background: var(--bh-blue); }
+#hakushiView .hk-sub-h { border-top: 2px solid var(--rule); color: var(--ink); font-family: var(--font-display); font-stretch: 112%; font-weight: 800; letter-spacing: .04em; }
+#hakushiView .hk-sub-h::before { content: ""; display: inline-block; width: .7em; height: .7em; margin-right: .5em; background: var(--bh-yellow); vertical-align: -.04em; box-shadow: inset 0 0 0 2px var(--rule); }
+#hakushiView .hk-gaps input { accent-color: var(--bh-blue); }
+#hakushiView .hk-gaps label { min-height: 44px; box-sizing: border-box; }
+
+/* 骨架地图 */
+#hakushiView .hk-map .e { stroke: var(--rule); stroke-opacity: 1; stroke-width: 2.5; stroke-linecap: square; }
+#hakushiView .hk-map .root circle { fill: var(--bh-blue); }
+#hakushiView .hk-map .root text { fill: var(--bh-on-blue); font-weight: 900; font-stretch: 112%; }
+#hakushiView .hk-map .n circle { fill: var(--surface-raised); stroke: var(--rule); stroke-width: 2.5; }
+#hakushiView .hk-map .n.s-master circle { fill: var(--bh-blue); stroke: var(--rule); }
+#hakushiView .hk-map .n.s-due circle { fill: var(--bh-yellow); stroke: var(--rule); stroke-width: 2.5; }
+#hakushiView .hk-map .n.s-weak circle { fill: var(--bh-red); stroke: var(--rule); }
+#hakushiView .hk-map .n:hover circle, #hakushiView .hk-map .n:focus-visible circle { stroke: var(--bh-blue); stroke-width: 4; }
+#hakushiView .hk-map .ex circle { stroke: var(--rule); stroke-dasharray: 4 4; stroke-width: 2; }
+#hakushiView .hk-legend .lg { border-radius: 50%; }
+#hakushiView .hk-legend span:nth-child(1) .lg { background: var(--surface-raised) !important; border: 2px solid var(--rule) !important; }
+#hakushiView .hk-legend span:nth-child(2) .lg { background: var(--bh-yellow) !important; border: 2px solid var(--rule) !important; }
+#hakushiView .hk-legend span:nth-child(3) .lg { background: var(--bh-red) !important; border: 2px solid var(--rule) !important; }
+#hakushiView .hk-legend span:nth-child(4) .lg { background: var(--bh-blue) !important; border: 2px solid var(--rule) !important; }
+#hakushiView .hk-tree ul, #hakushiView .hk-tree ul > li::before { border-color: var(--rule); border-width: 2px; }
+#hakushiView .hk-tr-root { border-radius: 0; background: var(--bh-blue); color: var(--bh-on-blue); font-weight: 900; }
+#hakushiView .hk-tr { border-radius: 0; }
+#hakushiView .hk-tr .dot { background: var(--surface-raised); border: 2px solid var(--rule); }
+#hakushiView .hk-tr.s-master .dot { background: var(--bh-blue); }
+#hakushiView .hk-tr.s-due .dot { background: var(--bh-yellow); border: 2px solid var(--rule); }
+#hakushiView .hk-tr.s-weak .dot { background: var(--bh-red); border-color: var(--rule); }
+
+/* 学习能力单 */
+#hakushiView .hk-have { border-bottom: 2px solid var(--rule); }
+#hakushiView .hk-have .h { border-radius: 0; background: var(--bh-yellow); color: #141414; box-shadow: inset 0 0 0 2px var(--rule); font-weight: 700; }
+#hakushiView .hk-have .set-label { color: var(--ink); font-family: var(--font-display); font-stretch: 112%; font-weight: 800; }
+#hakushiView .hk-abil li { border-bottom: 2px solid var(--rule); }
+#hakushiView .hk-abil li:last-child { border-bottom: 0; }
+#hakushiView .hk-abil h3 { font-weight: 900; font-stretch: 112%; }
+#hakushiView .hk-lv { color: var(--ink); font-weight: 700; }
+#hakushiView .hk-lv i { width: 16px; height: 16px; border-radius: 0; background: transparent; box-shadow: inset 0 0 0 2px var(--rule); }
+#hakushiView .hk-lv i.on { background: var(--bh-blue); }
+#hakushiView .hk-lv.lv0 { color: var(--ink-secondary); }
+#hakushiView .hk-abil .now { color: var(--ink); }
+#hakushiView .hk-abil .now::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--bh-red); vertical-align: 1px; }
+#hakushiView .hk-from s { text-decoration-color: var(--bh-red); text-decoration-thickness: 2px; }
+
+/* 怎么画：6 条做成两栏的编号格，黑粗线分隔 */
+#hakushiView .rules { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-8); }
+#hakushiView .rules li { grid-template-columns: 52px 1fr; padding: 18px 0 22px; border-top: 3px solid var(--rule); }
+#hakushiView .rules li::before { font-size: 44px; line-height: .9; color: var(--bh-red); font-weight: 900; }
+#hakushiView .rules li:nth-child(n+3)::before { color: var(--ink); }
+#hakushiView .rules b { font-size: 19px; line-height: 26px; }
+@media (max-width: 760px) { #hakushiView .rules { grid-template-columns: minmax(0, 1fr); } #hakushiView .rules li:nth-child(n+2)::before { color: var(--ink); } #hakushiView .rules li:nth-child(2)::before { color: var(--ink); } }
+#hakushiView .ex { border-radius: 0; background: transparent; border: 2px solid var(--rule); padding: 18px 20px 18px 30px; position: relative; }
+#hakushiView .ex::before { content: ""; position: absolute; left: -2px; top: -2px; bottom: -2px; width: 10px; }
+#hakushiView .ex.bad::before { background: var(--bh-red); }
+#hakushiView .ex.good::before { background: var(--bh-blue); }
+#hakushiView .ex-h { font-family: var(--font-display); font-stretch: 112%; font-weight: 900; font-size: 16px; color: var(--ink) !important; }
+#hakushiView .hk-ex { border: 3px solid var(--rule); border-radius: 0; box-shadow: var(--shadow-float); }
+#hakushiView .hk-ex-wrap { padding: 0 8px 8px 0; }
+#hakushiView .hk-ex-tag { border-radius: 0; background: var(--rule); color: var(--surface); font-family: var(--font-display); font-stretch: 112%; letter-spacing: .06em; }
+#hakushiView .hk-mini .hk-th, #hakushiView .hk-th { border-radius: 0; }
+
+/* ================= 画白紙弹窗 ================= */
+dialog.hk-dlg { border: 0; }
+.hk-dlg .hk-top { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-bottom: var(--rule-w) solid var(--rule); }
+.hk-dlg .hk-top .pill { line-height: 36px; }
+.hk-dlg .hk-steps { gap: 0; }
+.hk-dlg .hk-steps li { border-radius: 0; min-height: 36px; padding: 0 14px; background: transparent; color: var(--ink); border: 2px solid var(--rule); font-weight: 700; }
+.hk-dlg .hk-steps li + li { margin-left: -2px; }
+.hk-dlg .hk-steps li::before { font-family: var(--font-num); font-style: normal; font-stretch: 118%; font-weight: 800; }
+.hk-dlg .hk-steps li.is-done { background: var(--bh-blue); color: var(--bh-on-blue); }
+.hk-dlg .hk-steps li.is-now { background: var(--rule); color: var(--surface); }
+.hk-dlg .hk-steps li.is-now::before { color: var(--bh-red); }
+.hk-dlg .hk-clock { font-stretch: 118%; font-weight: 800; color: var(--ink); }
+.hk-dlg .hk-clock.is-ten { color: var(--ink); box-shadow: inset 0 -4px 0 var(--bh-yellow); }
+.hk-dlg #hkHide, .hk-dlg .hk-quit { min-height: 44px; }
+.hk-dlg #hkHide { min-width: 44px; justify-content: center; }
+.hk-dlg .hk-main { position: relative; isolation: isolate; }
+.hk-dlg .hk-stage { position: relative; z-index: 1; }
+@media (min-width: 1180px) {
+  .hk-dlg .hk-main { background: linear-gradient(var(--bh-blue), var(--bh-blue)) 0 0 / 28px 40vh no-repeat, linear-gradient(var(--rule), var(--rule)) 0 40vh / 180px var(--rule-w) no-repeat; }
+  .hk-dlg .hk-main::after { content: ""; position: absolute; z-index: 0; left: 172px; top: calc(40vh - 7px); width: 16px; height: 16px; border-radius: 50%; background: var(--bh-red); pointer-events: none; }
+}
+.hk-dlg .hk-book { font-family: var(--font-display); font-stretch: 115%; font-weight: 800; color: var(--ink); }
+.hk-dlg .hk-book svg { color: var(--bh-blue); }
+.hk-dlg .hk-book.is-open { color: var(--ink); }
+.hk-dlg .hk-book.is-open svg { color: var(--bh-red); }
+.hk-dlg .hk-h { font-weight: 900; font-stretch: 112%; letter-spacing: -0.01em; }
+.hk-dlg .chip span, #hakushiView .chip span { box-shadow: inset 0 0 0 2px var(--rule); background: transparent; }
+.hk-dlg .chip:hover input:not(:checked) + span, #hakushiView .chip:hover input:not(:checked) + span { background: var(--bh-yellow); color: #141414; }
+.hk-dlg .chip input:checked + span, #hakushiView .chip input:checked + span { background: var(--rule); color: var(--surface); }
+.hk-dlg .chip input:focus-visible + span, #hakushiView .chip input:focus-visible + span { box-shadow: var(--focus-ring); }
+.hk-dlg .set-label, .hk-dlg legend { color: var(--ink); font-weight: 700; }
+.hk-dlg .hk-readbar .ip-bar { height: 10px; box-shadow: inset 0 0 0 2px var(--rule); }
+.hk-dlg .hk-readclock.is-ok { color: var(--ink); font-weight: 700; }
+.hk-dlg .hk-core label { grid-template-columns: 44px minmax(0, 1fr); gap: 12px; }
+.hk-dlg .hk-core label b { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--bh-red); color: var(--bh-on-red); font-family: var(--font-display); font-weight: 900; font-size: 20px; }
+.hk-dlg .hk-cchips span { border-radius: 0; background: transparent; box-shadow: inset 0 0 0 2px var(--rule); min-height: 32px; font-weight: 600; }
+.hk-dlg .hk-cchips b { color: var(--bh-red); font-family: var(--font-display); font-weight: 900; }
+/* 画纸：保留纸和方格，外框 = 黑粗线 + 硬阴影 */
+.hk-dlg .hk-paper { border: var(--rule-w) solid var(--rule); border-radius: 0; box-shadow: var(--shadow-float); }
+.hk-dlg .hk-tools { gap: 0; margin-top: 6px; }
+.hk-dlg .hk-tool { border-radius: 0; min-height: 44px; border: 2px solid var(--rule); background: var(--surface); color: var(--ink); font-weight: 700; }
+.hk-dlg .hk-tool + .hk-tool { margin-left: -2px; }
+.hk-dlg .hk-tool:hover:not(:disabled) { background: var(--bh-yellow); color: #141414; }
+.hk-dlg .hk-tool[aria-pressed="true"] { background: var(--rule); color: var(--surface); }
+.hk-dlg .hk-tool .dot { box-shadow: 0 0 0 2px var(--surface); }
+.hk-dlg .hk-tsep { width: 0; height: 44px; background: none; margin: 0 8px; border-left: var(--rule-w) solid var(--rule); }
+.hk-dlg .hk-tsep + .hk-tool { margin-left: 0; }
+@media (max-width: 640px) {
+  .hk-dlg .hk-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; box-sizing: border-box; padding: 0 0 2px 2px; }
+  .hk-dlg .hk-tool { justify-content: center; margin: 0 0 -2px -2px !important; padding: 0 6px; }
+  .hk-dlg .hk-tsep { display: none; }
+  .hk-dlg .hk-tools > .hk-tool:only-child { grid-column: 1 / -1; }
+}
+.hk-dlg .hk-real img { border-radius: 0; }
+.hk-dlg .hk-prev { border: 2px solid var(--rule); border-radius: 0; }
+.hk-dlg .hk-prev > summary { color: var(--ink); font-weight: 700; }
+.hk-dlg .hk-prev-body .hk-th, .hk-dlg .hk-compare .hk-th { border: 2px solid var(--rule); border-radius: 0; box-shadow: none; }
+.hk-dlg .hk-compare .is-now .hk-th { box-shadow: 4px 4px 0 var(--bh-blue); }
+.hk-dlg .hk-next b { color: var(--ink); box-shadow: inset 0 -6px 0 var(--bh-yellow); }
+.hk-dlg .hk-done { padding-top: var(--space-6); position: relative; }
+.hk-dlg .hk-done::before { content: ""; display: block; width: 52px; height: 52px; border-radius: 50%; background: var(--bh-red); margin-bottom: var(--space-2); }
+/* 看过往白紙的弹窗 */
+dialog.hk-tsheet .hk-big, dialog.hk-tsheet .hk-gcard .hk-th { border: 2px solid var(--rule); border-radius: 0; }
+dialog.hk-tsheet .hk-gcard { border-radius: 0; }
+dialog.hk-tsheet .hk-gcard[aria-pressed="true"] { background: transparent; box-shadow: inset 0 0 0 3px var(--bh-blue); }
+dialog.hk-tsheet .hk-cover { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; background-image: repeating-linear-gradient(to bottom, var(--grid-line) 0 2px, transparent 2px 12px); }
+
+/* ================= 多職種页 ================= */
+/* 章节目录：编号格；手机上一行横滑 */
+#tsToc { counter-reset: tsc; gap: 0; padding: 0 2px 2px 0; }
+#tsToc button { counter-increment: tsc; border-radius: 0; border: 2px solid var(--rule); background: var(--surface); min-height: 44px; padding: 0 14px 0 10px; margin: 0 -2px -2px 0; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+#tsToc button::before { content: counter(tsc, decimal-leading-zero); font-family: var(--font-num); font-stretch: 118%; font-weight: 800; font-size: 13px; color: var(--bh-red); }
+#tsToc button:hover { background: var(--bh-yellow); color: #141414; border-color: var(--rule); }
+#tsToc button:hover::before { color: #141414; }
+@media (max-width: 860px) {
+  #tsToc { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; margin-top: var(--space-4); }
+  #tsToc::-webkit-scrollbar { display: none; }
+  #tsToc button { flex: none; white-space: nowrap; margin-bottom: 0; }
+}
+/* 计时条 */
+#tsStrip { border-radius: 0; background: transparent; color: var(--ink); border-top: var(--rule-w) solid var(--rule); border-bottom: var(--rule-w) solid var(--rule); padding-inline: 0; }
+#tsStrip .live { color: var(--ink); font-weight: 700; }
+#tsStrip .live i { background: var(--bh-red); width: 10px; height: 10px; }
+#tsStrip .ms b { font-family: var(--font-num); font-stretch: 118%; font-weight: 800; }
+#tsStrip .ip-btn-link { min-height: 44px; }
+@media (max-width: 860px) { #tsStrip { margin-top: var(--space-2); } }
+
+/* 团队三种模式：每张卡一条原色顶条 + 原色几何图 */
+#tashokuView .models { gap: var(--space-3); }
+#tashokuView .model { position: relative; border: 2px solid var(--rule); border-radius: 0; padding-top: calc(var(--space-6) + 10px); }
+#tashokuView .model::before { content: ""; position: absolute; left: -2px; right: -2px; top: -2px; height: 10px; background: var(--bh-red); }
+#tashokuView .model:nth-child(2)::before { background: var(--bh-yellow); }
+#tashokuView .model:nth-child(3)::before { background: var(--bh-blue); }
+#tashokuView .model h3 { font-weight: 900; }
+#tashokuView .model .en { font-family: var(--font-display); font-style: normal; font-stretch: 115%; font-weight: 800; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); }
+#tashokuView .model .en::before { content: "→ "; color: var(--bh-red); }
+#tashokuView .model .scene { border-radius: 0; background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--rule); font-weight: 700; min-height: 32px; align-items: center; }
+#tashokuView .mdl .ln { stroke: var(--rule); stroke-opacity: 1; stroke-width: 2.5; stroke-linecap: square; }
+#tashokuView .mdl .nd { fill: var(--surface-raised); stroke: var(--rule); stroke-width: 2.5; }
+#tashokuView .mdl .top { fill: var(--bh-red); stroke: var(--rule); stroke-width: 2.5; }
+#tashokuView .mdl text.on { fill: var(--bh-on-red); }
+#tashokuView .mdl .pt { fill: var(--bh-yellow); stroke: var(--rule); stroke-width: 2.5; }
+#tashokuView .mdl circle.pt + text { fill: #141414; }
+#tashokuView .mdl .vn { fill-opacity: .2; stroke-width: 3; }
+#tashokuView .mdl .vn:nth-of-type(1) { fill: var(--bh-red); stroke: var(--bh-red); }
+#tashokuView .mdl .vn:nth-of-type(2) { fill: var(--bh-yellow); stroke: var(--bh-yellow); }
+#tashokuView .mdl .vn:nth-of-type(3) { fill: var(--bh-blue); stroke: var(--bh-blue); }
+#tashokuView .mdl text { font-weight: 700; letter-spacing: -0.03em; }
+#tashokuView .mdl text.cap { fill: var(--ink-secondary); font-weight: 600; }
+
+/* 各职种：黑线格子表；资格区分 = 原色块 */
+#tashokuView .kbadges { color: var(--ink); }
+#tashokuView .kb { border-radius: 0; min-height: 26px; box-shadow: inset 0 0 0 2px var(--rule); }
+#tashokuView .kb.gyomu { background: var(--bh-red); color: var(--bh-on-red); }
+#tashokuView .kb.meisho { background: var(--bh-blue); color: var(--bh-on-blue); }
+#tashokuView .kb.koteki { background: var(--bh-yellow); color: #141414; }
+#maskBtn { min-height: 44px; }
+#tashokuView .profs { gap: 0; border-top: 2px solid var(--rule); border-left: 2px solid var(--rule); margin-top: var(--space-4); }
+#tashokuView .prof { border-radius: 0; background: var(--surface-raised); border-right: 2px solid var(--rule); border-bottom: 2px solid var(--rule); position: relative; }
+#tashokuView .prof.is-pt { box-shadow: inset 0 8px 0 var(--bh-blue); padding-top: 30px; }
+#tashokuView .prof.is-pt h3::after { content: ""; display: inline-block; width: 12px; height: 12px; margin-left: 10px; border-radius: 50%; background: var(--bh-red); vertical-align: 2px; }
+#tashokuView .prof h3 { font-weight: 900; }
+#tashokuView .prof dl div { border-top: 1px solid var(--line); padding-top: 8px; }
+#tashokuView .prof dt { color: var(--ink); font-family: var(--font-display); font-stretch: 112%; font-weight: 800; }
+#tashokuView .masking .mk:not(.open) { border-radius: 0; background: repeating-linear-gradient(to bottom, var(--surface-sunken) 0 5px, var(--line) 5px 6px) !important; box-shadow: inset 0 0 0 2px var(--rule); }
+#tashokuView .masking .mk:not(.open)::after { color: var(--ink); font-weight: 700; }
+
+/* 要点各节 */
+#tashokuView .tsec { border-radius: 0; border: 2px solid var(--rule); background: var(--surface-raised); }
+#tashokuView .tsec h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-weight: 900; }
+#tashokuView .tsec h3 .no { flex: none; width: 44px; height: 44px; margin: 0; display: grid; place-items: center; background: var(--rule); color: var(--surface); font-family: var(--font-num); font-style: normal; font-stretch: 118%; font-weight: 800; font-size: 20px; }
+#tashokuView .tsec:nth-child(3n+1) h3 .no { box-shadow: 6px 6px 0 var(--bh-red); }
+#tashokuView .tsec:nth-child(3n+2) h3 .no { box-shadow: 6px 6px 0 var(--bh-yellow); }
+#tashokuView .tsec:nth-child(3n) h3 .no { box-shadow: 6px 6px 0 var(--bh-blue); }
+#tashokuView .tsec h3 .z { margin-left: 0; }
+#tashokuView .tsec ul { list-style: square; }
+#tashokuView .tsec li::marker { color: var(--bh-red); }
+#tashokuView .tsec-foot { border-top: 2px solid var(--rule); }
+#tashokuView .tsec-foot .ip-btn { min-height: 44px; }
+#tsChap .chap { border-radius: 0; border: 2px solid var(--rule); }
 /* ==== /BH:hakushi-tashoku ==== */
 /*
    ·
@@ -1668,10 +1935,11 @@ dialog { border-radius: 0; border: var(--rule-w) solid var(--rule); box-shadow: 
 </div>
 <div id="tashokuView" hidden>
   <section class="hero hero-sm" aria-labelledby="tsTitle">
+    <svg class="bh-deco" viewBox="0 0 300 260" aria-hidden="true" focusable="false"><rect class="y" x="0" y="0" width="118" height="104"/><path class="st" d="M0 140H300M190 0V260"/><circle class="b" cx="190" cy="140" r="60"/><circle class="nd" cx="52" cy="140" r="14"/><circle class="nd" cx="274" cy="140" r="14"/><circle class="nd" cx="190" cy="26" r="14"/><circle class="nd" cx="190" cy="236" r="14"/></svg>
     <p class="eyebrow">多職種連携 · 国試範囲</p>
     <h1 id="tsTitle">团队医疗，<br>患者在正中间。</h1>
     <p class="lead">国试常考的几块：三种团队模式、各职种的根据法、业务独占和名称独占、PT 法条文、会议和地域包括ケア。先读懂一节，再按「这一块去ドリル」拆开记。</p>
-    <div class="toc" id="tsToc" aria-label="跳到小节"></div>
+    <div class="toc hfade" id="tsToc" aria-label="跳到小节"></div>
   </section>
   <div class="map-strip" id="tsStrip">
     <span class="live"><i aria-hidden="true"></i><span id="tsLive">在这一页学习会自动计时</span></span>
@@ -1757,6 +2025,7 @@ dialog { border-radius: 0; border: var(--rule-w) solid var(--rule); box-shadow: 
 
 <div id="hakushiView" hidden>
   <section class="hero hero-sm" aria-labelledby="hkHeroTitle">
+    <svg class="bh-deco" viewBox="0 0 300 260" aria-hidden="true" focusable="false"><circle class="r" cx="86" cy="176" r="74"/><rect class="y" x="236" y="182" width="44" height="44"/><rect class="sheet" x="78" y="22" width="196" height="146"/><path class="ln" d="M104 62H246M104 82H246M104 102H246M104 122H200"/><path class="st" d="M8 246H170V214H292"/></svg>
     <p class="eyebrow">白紙 · 凭记忆画出来</p>
     <h1 id="hkHeroTitle">合上书，<br>在白纸上画出来。</h1>
     <p class="lead">看一小段就合上。凭记忆写出最重要的三件事，画成骨架，再翻开书，用朱笔补上漏掉的。隔 1、3、7 天再凭记忆画一次，每一次都会比上次多想起一点。</p>
@@ -21210,7 +21479,7 @@ function hfadeSync(n) {
   n.classList.toggle('fade-r', n.scrollLeft + n.clientWidth < n.scrollWidth - 4);
 }
 function hfadeAll(root) {
-  (root || document).querySelectorAll('.nav .tabs, .grp-row, .kk-exams, .modebar').forEach((n) => {
+  (root || document).querySelectorAll('.nav .tabs, .grp-row, .kk-exams, .modebar, #tsToc').forEach((n) => {
     n.classList.add('hfade');
     if (!n.dataset.hf) { n.dataset.hf = '1'; n.addEventListener('scroll', () => hfadeSync(n), { passive: true }); }
     hfadeSync(n);
