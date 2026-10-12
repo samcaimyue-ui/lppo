@@ -1,0 +1,97 @@
+/* Theraband tension bench (anatomy figure). Everything is scoped to .tbf.
+   Paper and ink come from the site (Bauhaus tokens, inherited into the map's shadow root):
+   paper = --m-surface (the .anstage card), ink = --rule. Accents are only the Bauhaus red/blue.
+   data-tone="dark" is set by the live code from the computed ink colour. */
+.tbf{--tbf-paper:var(--m-surface,var(--surface-raised,#f7f1e3));--tbf-ink:var(--rule,var(--m-ink,#141414));
+  --anatomy-paper:var(--tbf-paper);
+  --anatomy-face:color-mix(in srgb,var(--tbf-paper) 45%,#fff);--anatomy-top:color-mix(in srgb,var(--tbf-paper) 40%,#fff);
+  --anatomy-shade-0:color-mix(in srgb,var(--tbf-paper) 85%,var(--tbf-ink));--anatomy-shade-1:color-mix(in srgb,var(--tbf-paper) 89.5%,var(--tbf-ink));
+  --anatomy-shade-2:color-mix(in srgb,var(--tbf-paper) 93.5%,var(--tbf-ink));--anatomy-shade-3:color-mix(in srgb,var(--tbf-paper) 97%,var(--tbf-ink));
+  --anatomy-lit-top:color-mix(in srgb,var(--tbf-paper) 20%,#fff);--anatomy-lit-shade:color-mix(in srgb,var(--tbf-paper) 93%,var(--tbf-ink));
+  --anatomy-hi:var(--tbf-ink);--anatomy-mid:color-mix(in srgb,var(--tbf-ink) 58%,var(--tbf-paper));
+  --anatomy-lo:color-mix(in srgb,var(--tbf-ink) 36%,var(--tbf-paper));--anatomy-faint:color-mix(in srgb,var(--tbf-ink) 19%,var(--tbf-paper));
+  --anatomy-halo:color-mix(in srgb,var(--tbf-ink) 55%,var(--tbf-paper));--anatomy-halo-opacity:.34;--anatomy-dot:var(--tbf-ink);
+  --anatomy-weight:.6px;--tbf-red:var(--bh-red,#d13a26);--tbf-blue:var(--bh-blue,#1d52b0);--tbf-mute:var(--m-muted,var(--ink-secondary,#4d473d));
+  margin:0 0 12px;color:var(--m-ink,var(--ink))}
+.tbf[data-tone="dark"]{
+  --anatomy-face:color-mix(in srgb,var(--tbf-paper) 90%,var(--tbf-ink));--anatomy-top:color-mix(in srgb,var(--tbf-paper) 92%,var(--tbf-ink));
+  --anatomy-shade-0:color-mix(in srgb,var(--tbf-paper) 62%,#000);--anatomy-shade-1:color-mix(in srgb,var(--tbf-paper) 74%,#000);
+  --anatomy-shade-2:color-mix(in srgb,var(--tbf-paper) 86%,#000);--anatomy-shade-3:color-mix(in srgb,var(--tbf-paper) 97%,var(--tbf-ink));
+  --anatomy-lit-top:color-mix(in srgb,var(--tbf-paper) 84%,var(--tbf-ink));--anatomy-lit-shade:color-mix(in srgb,var(--tbf-paper) 90%,var(--tbf-ink));
+  --anatomy-hi:color-mix(in srgb,var(--tbf-ink) 86%,var(--tbf-paper));--anatomy-mid:color-mix(in srgb,var(--tbf-ink) 46%,var(--tbf-paper));
+  --anatomy-lo:color-mix(in srgb,var(--tbf-ink) 28%,var(--tbf-paper));--anatomy-faint:color-mix(in srgb,var(--tbf-ink) 15%,var(--tbf-paper));
+  --anatomy-halo:#000;--anatomy-halo-opacity:.85}
+/* card: thick Bauhaus rule, corners as rows so nothing overlaps on a phone */
+.tbf-plate{position:relative;border:2px solid var(--tbf-ink);background:var(--tbf-paper);padding:12px 14px 10px}
+.tbf-row{display:flex;justify-content:space-between;align-items:baseline;gap:6px 14px;flex-wrap:wrap;font-family:var(--font-display,inherit);font-size:11px;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:var(--tbf-mute)}
+.tbf-fig{color:var(--tbf-ink);font-weight:800}
+.tbf-fig::before{content:"";display:inline-block;width:.75em;height:.75em;margin-right:.5em;background:var(--tbf-red);border-radius:50%!important;vertical-align:-.05em}
+.tbf-title{font-weight:700;text-align:right}
+.tbf-hint{font-weight:700}
+.tbf-read{text-transform:none;letter-spacing:0;font-size:13px;color:var(--tbf-ink);font-variant-numeric:tabular-nums;margin-left:auto;text-align:right}
+.tbf-read b{font-family:var(--font-num,inherit);font-stretch:118%;font-weight:800;font-size:26px;letter-spacing:-.01em;line-height:1}
+.tbf-read .tbf-u{font-family:var(--font-num,inherit);font-weight:800;font-size:15px;margin:0 8px 0 3px}
+.tbf-read i{font-style:normal;white-space:nowrap}
+.tbf-stage{position:relative;margin:4px -6px 2px;outline:none;touch-action:pan-y;cursor:default;overflow:hidden}
+.tbf .tbf-stage .iso-svg{max-width:1040px;margin:0 auto;overflow:visible}
+.tbf-stage:focus-visible{outline:3px solid var(--bh-yellow,#f2b51c);outline-offset:2px}
+.tbf-legend{display:flex;flex-wrap:wrap;gap:4px 16px;margin:8px 2px 0;font-size:12.5px;line-height:1.5;color:var(--tbf-mute)}
+.tbf-key{display:inline-flex;align-items:center;gap:6px}
+.tbf-key i{flex:none;display:inline-block;width:14px;height:8px}
+.tbf-key i[data-k="red"]{background:var(--tbf-red)}
+.tbf-key i[data-k="blue"]{width:10px;height:10px;border-radius:50%!important;background:var(--tbf-blue);box-shadow:inset 0 0 0 2.5px var(--tbf-paper),0 0 0 1px var(--tbf-blue)}
+.tbf-key i[data-k="band"]{background:var(--tb-c,#d8352f);box-shadow:inset 3px 0 0 var(--tbf-paper),inset -3px 0 0 var(--tbf-paper),inset 0 0 0 1px color-mix(in srgb,var(--tbf-ink) 30%,transparent)}
+.tbf-key small{font-size:11.5px;opacity:.85}
+/* the drawing (anatomy ISO_CSS, scoped) */
+.tbf .iso-svg{display:block;width:100%;height:auto;overflow:visible;user-select:none;-webkit-user-select:none}
+.tbf .iso-svg path,.tbf .iso-svg circle{vector-effect:non-scaling-stroke}
+.tbf .iso-fill{fill:var(--anatomy-paper);stroke:none}
+.tbf .iso-solid[data-lit]>.iso-fill{fill:var(--anatomy-face)}
+.tbf .iso-shade,.tbf .iso-top{stroke:none}
+.tbf .iso-shade[data-shade="0"]{fill:var(--anatomy-shade-0)}
+.tbf .iso-shade[data-shade="1"]{fill:var(--anatomy-shade-1)}
+.tbf .iso-shade[data-shade="2"]{fill:var(--anatomy-shade-2)}
+.tbf .iso-shade[data-shade="3"]{fill:var(--anatomy-shade-3)}
+.tbf .iso-top{fill:var(--anatomy-top)}
+.tbf .iso-solid[data-lit]>.iso-top{fill:var(--anatomy-lit-top)}
+.tbf .iso-solid[data-lit]>.iso-shade{fill:var(--anatomy-lit-shade)}
+.tbf .iso-solid[data-seamless]>.iso-shade,.tbf .iso-solid[data-seamless]>.iso-top{stroke-width:.4;stroke-linejoin:round}
+.tbf .iso-solid[data-seamless]>.iso-shade[data-shade="0"]{stroke:var(--anatomy-shade-0)}
+.tbf .iso-solid[data-seamless]>.iso-shade[data-shade="1"]{stroke:var(--anatomy-shade-1)}
+.tbf .iso-solid[data-seamless]>.iso-shade[data-shade="2"]{stroke:var(--anatomy-shade-2)}
+.tbf .iso-solid[data-seamless]>.iso-shade[data-shade="3"]{stroke:var(--anatomy-shade-3)}
+.tbf .iso-halo{fill:var(--anatomy-halo);stroke:none;filter:blur(9px);opacity:var(--anatomy-halo-opacity);transform:translateY(3px)}
+.tbf .iso-line{fill:none;stroke:var(--anatomy-lo);stroke-width:var(--anatomy-weight);stroke-linecap:round;stroke-linejoin:round}
+.tbf .iso-line[data-tone="hi"]{stroke:var(--anatomy-hi)}
+.tbf .iso-line[data-tone="mid"]{stroke:var(--anatomy-mid)}
+.tbf .iso-line[data-tone="lo"]{stroke:var(--anatomy-lo)}
+.tbf .iso-line[data-tone="faint"]{stroke:var(--anatomy-faint)}
+.tbf .iso-line[data-tone="red"]{stroke:var(--tbf-red);stroke-width:1.3px}
+.tbf .iso-dots circle{fill:var(--anatomy-dot);stroke:none;opacity:.32}
+.tbf .iso-dots[data-tone="hi"] circle{opacity:.85}
+.tbf .iso-dots[data-tone="mid"] circle{opacity:.45}
+.tbf .iso-dots[data-tone="lo"] circle{opacity:.22}
+.tbf .iso-dots[data-tone="red"] circle{fill:var(--tbf-red);opacity:1}
+.tbf .iso-face-text{fill:var(--anatomy-mid);font-family:var(--font-num,ui-monospace,monospace);font-weight:700;letter-spacing:.02em}
+.tbf .iso-face-text[data-tone="hi"]{fill:var(--anatomy-hi)}
+.tbf .iso-face-text[data-tone="lo"]{fill:var(--anatomy-lo)}
+/* painted parts: the colour IS the subject (band, colour samples), plus the red arrow and the blue grip */
+.tbf .tb-paint>.iso-fill{fill:color-mix(in srgb,var(--tb-c) 80%,#000)}
+.tbf .tb-paint>.iso-top{fill:var(--tb-c)}
+.tbf .tb-paint>.iso-shade[data-shade="0"]{fill:color-mix(in srgb,var(--tb-c) 62%,#000)}
+.tbf .tb-paint>.iso-shade[data-shade="1"]{fill:color-mix(in srgb,var(--tb-c) 70%,#000)}
+.tbf .tb-paint>.iso-shade[data-shade="2"]{fill:color-mix(in srgb,var(--tb-c) 78%,#000)}
+.tbf .tb-paint>.iso-shade[data-shade="3"]{fill:color-mix(in srgb,var(--tb-c) 86%,#000)}
+.tbf .tb-paint>.iso-line{stroke:color-mix(in srgb,var(--tb-c) 40%,var(--anatomy-hi))}
+.tbf .tb-paint>.iso-crease{stroke:color-mix(in srgb,var(--tb-c) 70%,#000)}
+.tbf .tb-mark{fill:none;stroke:color-mix(in srgb,var(--tb-c) 55%,#000);stroke-width:.7px;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.tbf[data-tone="dark"] .tb-mark{stroke:color-mix(in srgb,var(--tb-c) 55%,#fff)}
+.tbf .tb-paint>*,.tbf .tb-mark{transition:fill .28s ease,stroke .28s ease}
+.tbf .tb-tile{transition:transform .32s cubic-bezier(.32,.72,0,1)}
+.tbf .tb-face{fill:var(--anatomy-lit-top);stroke:none}
+.tbf .tb-hit{fill:transparent;stroke:none;pointer-events:all}
+.tbf [data-drag]{cursor:grab}
+.tbf [data-tile]{cursor:pointer}
+.tbf [data-drag]:active{cursor:grabbing}
+@media (max-width:560px){.tbf-plate{padding:10px 8px 8px}.tbf-stage{margin:2px -8px 0}.tbf .tbf-stage .iso-svg{width:110%;max-width:none;margin:0 -7% 0 -3%}.tbf-read b{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.tbf .tb-paint>*,.tbf .tb-mark,.tbf .tb-tile{transition:none}}
