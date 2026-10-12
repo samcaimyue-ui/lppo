@@ -1,3 +1,4 @@
 pdfs/*
 !pdfs/.gitkeep
 node_modules/
+.claude/worktrees/
