@@ -1,15 +1,10 @@
 ---
 name: publish-site
-description: 把仓库里的 Ippo 网站发布到线上 Claude Artifact（主人平时用的那个网址）。主人说「发布」「更新线上」「同步到网站」时使用。
+description: 已停用（2026-10-21）。云端会话不发布 Ippo 网站。主人说「发布」时，告诉主人发布由 Mac 上的内容部按 RELEASES.md 的流程做，不要调用 Artifact publish。
 ---
 
-# 发布到线上
+# 已停用
 
-线上地址：https://claude.ai/artifact/Var866y5LbdpRmCH36Ayx5
+发布只由主人 Mac 上的会话按 `IPPO_PROJECT_RULES.md` §6-8 / v31 的 RELEASES.md 流程做（PUBLISH.lock、核对线上版本号、verify_live）。云端会话看不到 PUBLISH.lock 和 RELEASES.md，发布会有覆盖别人成果的风险。
 
-1. `node tools/check.mjs` 必须通过；工作区改动已经提交。
-2. 先用 Artifact 工具 `read` 一次线上版本。如果线上有仓库里没有的改动（主人可能在别处改过），先告诉主人，商量好再继续，不要覆盖。
-3. 发布：Artifact `publish`，`url` 填上面的地址，`file_path` 是 `index.html`。
-   - 题库 `kokushi/*.json` 只有改过的才放进 `files`（没传的文件线上会保留）。
-   - 不要传 `capabilities`（保留线上已有的 `db`、`sample`，主人的进度同步靠它）。
-4. 告诉主人已发布，请主人打开网址看一下。
+主人要求发布时：说明这一点，并给出可以转给内容部的一句话。
